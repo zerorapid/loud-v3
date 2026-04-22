@@ -503,12 +503,17 @@
             const can40 = sub >= 1000;
             const can50 = sub >= 2000;
             
-            // AUTO-SELECT BEST COUPON
-            if (can50 && (!appliedCoupon || appliedCoupon === 'LOUD40' || appliedCoupon === 'LOUD30')) appliedCoupon = 'LOUD50';
-            else if (can40 && (!appliedCoupon || appliedCoupon === 'LOUD30')) appliedCoupon = 'LOUD40';
-            else if (!appliedCoupon) appliedCoupon = 'LOUD30';
+            // CALCULATE BEST AVAILABLE (BUT DON'T AUTO-APPLY)
+            let bestAvailable = 'LOUD30';
+            if (sub >= 2000) bestAvailable = 'LOUD50';
+            else if (sub >= 1000) bestAvailable = 'LOUD40';
+            
+            // SECURITY: REVOKE COUPON IF CRITERIA NO LONGER MET
+            if (appliedCoupon === 'LOUD50' && sub < 2000) appliedCoupon = null;
+            if (appliedCoupon === 'LOUD40' && sub < 1000) appliedCoupon = null;
 
-            let discountPct = 30;
+            let discountPct = 0;
+            if (appliedCoupon === 'LOUD30') discountPct = 30;
             if (appliedCoupon === 'LOUD40') discountPct = 40;
             if (appliedCoupon === 'LOUD50') discountPct = 50;
             
@@ -516,7 +521,10 @@
             let deliveryFee = sub >= 199 ? 0 : 30;
             const total = (sub - totalSavings) + deliveryFee;
 
-            // RENDER PRODUCTS + DYNAMIC COUPON CARDS
+            // RENDER PRODUCTS + RELEVANT COUPON CARD
+            const isApplied = appliedCoupon === bestAvailable;
+            const pctLabel = bestAvailable === 'LOUD50' ? '50% OFF' : (bestAvailable === 'LOUD40' ? '40% OFF' : '30% OFF');
+
             document.getElementById('cartBody').innerHTML = `
                 <div class="p-8 lg:p-10 space-y-8">
                     ${ids.map(i => { 
@@ -525,20 +533,23 @@
                     }).join('')}
                     
                     <div class="pt-10 border-t border-gray-50 space-y-6">
-                        <div class="flex justify-between items-center"><h5 class="text-[9px] font-black uppercase text-gray-400 tracking-widest">Offers For You</h5></div>
-                        <div class="grid grid-cols-1 gap-4">
-                            <div onclick="setCoupon('LOUD30')" class="p-6 border-2 ${appliedCoupon==='LOUD30'?'border-black bg-black text-white':'border-dashed border-gray-200'} rounded-[32px] cursor-pointer transition-all">
-                                <div class="flex justify-between items-center"><p class="font-black text-sm uppercase">LOUD30</p><span class="text-[10px] font-black uppercase">30% OFF</span></div>
-                                <p class="text-[9px] ${appliedCoupon==='LOUD30'?'text-white/40':'text-gray-400'} uppercase mt-1">Active on all orders</p>
+                        <div class="flex justify-between items-center"><h5 class="text-[9px] font-black uppercase text-gray-400 tracking-widest">Best Offer For You</h5></div>
+                        <div class="relative overflow-hidden group">
+                            <div class="p-8 border-2 ${isApplied ? 'border-green-500 bg-green-50' : 'border-black bg-white'} rounded-[40px] transition-all duration-500">
+                                <div class="flex justify-between items-center mb-4">
+                                    <div>
+                                        <p class="font-black text-2xl italic uppercase tracking-tighter">${bestAvailable}</p>
+                                        <p class="text-[10px] font-bold uppercase opacity-40">${isApplied ? 'Coupon Applied Successfully' : 'Unlocked & Ready to Use'}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="h1 !text-2xl !italic !text-black">${pctLabel}</p>
+                                    </div>
+                                </div>
+                                <button onclick="setCoupon('${bestAvailable}')" class="w-full ${isApplied ? 'bg-green-500 text-white' : 'bg-black text-white'} py-4 rounded-2xl font-black uppercase text-[11px] tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2">
+                                    ${isApplied ? '<span class="material-symbols-outlined text-sm">check_circle</span> APPLIED' : 'APPLY COUPON'}
+                                </button>
                             </div>
-                            <div onclick="${can40?'setCoupon(\'LOUD40\')':''}" class="p-6 border-2 ${appliedCoupon==='LOUD40'?'border-black bg-black text-white':'border-dashed border-gray-200'} rounded-[32px] cursor-pointer transition-all ${!can40?'opacity-30 grayscale':''}">
-                                <div class="flex justify-between items-center"><p class="font-black text-sm uppercase">LOUD40</p><span class="text-[10px] font-black uppercase">${can40?'40% OFF':'Locked'}</span></div>
-                                <p class="text-[9px] ${appliedCoupon==='LOUD40'?'text-white/40':'text-gray-400'} uppercase mt-1">${can40?'Unlocked for you!':'Spend ₹'+(1000-sub)+' more to unlock'}</p>
-                            </div>
-                            <div onclick="${can50?'setCoupon(\'LOUD50\')':''}" class="p-6 border-2 ${appliedCoupon==='LOUD50'?'border-black bg-black text-white':'border-dashed border-gray-200'} rounded-[32px] cursor-pointer transition-all ${!can50?'opacity-30 grayscale':''}">
-                                <div class="flex justify-between items-center"><p class="font-black text-sm uppercase">LOUD50</p><span class="text-[10px] font-black uppercase">${can50?'50% OFF':'Locked'}</span></div>
-                                <p class="text-[9px] ${appliedCoupon==='LOUD50'?'text-white/40':'text-gray-400'} uppercase mt-1">${can50?'Unlocked for you!':'Spend ₹'+(2000-sub)+' more to unlock'}</p>
-                            </div>
+                            ${!isApplied ? '<div class="absolute top-4 right-8 w-20 h-20 bg-orange-500/10 rounded-full blur-3xl -z-10"></div>' : ''}
                         </div>
                     </div>
                 </div>
@@ -560,11 +571,11 @@
 
             document.getElementById('bill').innerHTML = `
                 <div class="flex justify-between text-[10px] font-black uppercase text-gray-400"><span>Items Total</span><span>₹${sub}</span></div>
-                <div class="flex justify-between text-[10px] font-black uppercase text-green-500"><span>Coupon Applied (${appliedCoupon})</span><span>- ₹${totalSavings}</span></div>
+                ${totalSavings > 0 ? `<div class="flex justify-between text-[10px] font-black uppercase text-green-500"><span>Coupon Applied (${appliedCoupon})</span><span>- ₹${totalSavings}</span></div>` : ''}
                 <div class="flex justify-between text-[10px] font-black uppercase text-gray-400"><span>Delivery Fee</span><span>${deliveryFee === 0 ? '<span class="text-green-500">FREE</span>' : '₹'+deliveryFee}</span></div>
                 <div class="pt-4 border-t border-black/5 flex justify-between items-center">
                     <span class="h1 italic !text-xl">Total</span>
-                    <span class="h1 italic !text-2xl">₹${Math.max(0, total)}</span>
+                    <span class="h1 italic !text-2xl ${totalSavings > 0 ? 'text-black' : 'opacity-40'}">₹${Math.max(0, total)}</span>
                 </div>
             `;
         }
