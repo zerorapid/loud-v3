@@ -452,10 +452,26 @@
         async function completeOrder() {
             const ids = Object.keys(cart).filter(i=>cart[i]>0);
             const sub = ids.reduce((s,i)=>s+(DATA.find(x=>x.id==i).d*cart[i]), 0);
-            const total = sub + (sub >= 199 ? 0 : 30);
+            
+            let discountPct = 30;
+            if (sub >= 2000) discountPct = 50;
+            else if (sub >= 1000) discountPct = 40;
+            
+            const discountAmt = Math.floor(sub * (discountPct / 100));
+            const total = (sub - discountAmt) + (sub >= 199 ? 0 : 30);
+
             const orderItems = ids.map(i => { const p = DATA.find(x=>x.id==i); return { id: i, name: p.name, qty: cart[i], price: p.d }; });
             const selAddr = addresses[selAddrIdx];
-            const orderData = { customer_name: user.name, customer_phone: user.phone, total_amount: total, items: orderItems, address: selAddr, utr: document.getElementById('utr').value || 'UPI-PENDING' };
+            const orderData = { 
+                customer_name: user.name, 
+                customer_phone: user.phone, 
+                total_amount: total, 
+                items: orderItems, 
+                address: selAddr, 
+                utr: document.getElementById('utr').value || 'UPI-PENDING',
+                discount_applied: discountAmt,
+                discount_tier: discountPct + "%"
+            };
 
             const { data, error } = await _supabase.from('orders').insert([orderData]).select();
             if (error) return alert("Order failed to sync.");
@@ -463,7 +479,21 @@
             const newOrder = data[0]; history.unshift(newOrder); localStorage.setItem('hist', JSON.stringify(history));
             cart = {}; localStorage.setItem('cart', '{}'); selAddrIdx = -1; render(); closeAll();
             document.getElementById('modal').classList.remove('hidden');
-            document.getElementById('modalContent').innerHTML = `<div class="w-full max-w-[600px] bg-white p-12 rounded-3xl text-center shadow-2xl"><div class="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-10"><span class="material-symbols-outlined text-5xl">verified</span></div><h2 class="h1 italic mb-4">SUCCESS</h2><p class="meta-text mb-10">Order #ORD-${newOrder.id} confirmed</p><div class="flex justify-between mb-16 mt-16 px-4"><div class="tracking-step active"><div class="step-dot"><span class="material-symbols-outlined">receipt_long</span></div><span class="meta-text !text-[8px] font-black">Ordered</span></div><div class="tracking-step active"><div class="step-dot"><span class="material-symbols-outlined">package_2</span></div><span class="meta-text !text-[8px] font-black">Packing</span></div><div class="tracking-step"><div class="step-dot"><span class="material-symbols-outlined">delivery_dining</span></div><span class="meta-text !text-[8px] font-black">On Way</span></div></div><button onclick="location.reload()" class="w-full bg-black text-white py-6 rounded-full btn-text uppercase">View in Account</button></div>`;
+            document.getElementById('modalContent').innerHTML = `
+                <div class="w-full max-w-[600px] bg-white p-12 rounded-3xl text-center shadow-2xl">
+                    <div class="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-10">
+                        <span class="material-symbols-outlined text-5xl">verified</span>
+                    </div>
+                    <h2 class="h1 italic mb-2">SUCCESS</h2>
+                    <p class="meta-text mb-4 text-green-500 font-black">YOU SAVED ₹${discountAmt}!</p>
+                    <p class="meta-text mb-10">Order #ORD-${newOrder.id} confirmed</p>
+                    <div class="flex justify-between mb-16 mt-16 px-4">
+                        <div class="tracking-step active"><div class="step-dot"><span class="material-symbols-outlined">receipt_long</span></div><span class="meta-text !text-[8px] font-black">Ordered</span></div>
+                        <div class="tracking-step active"><div class="step-dot"><span class="material-symbols-outlined">package_2</span></div><span class="meta-text !text-[8px] font-black">Packing</span></div>
+                        <div class="tracking-step"><div class="step-dot"><span class="material-symbols-outlined">delivery_dining</span></div><span class="meta-text !text-[8px] font-black">On Way</span></div>
+                    </div>
+                    <button onclick="location.reload()" class="w-full bg-black text-white py-6 rounded-full btn-text uppercase">View in Account</button>
+                </div>`;
         }
 
         function sync() { const n = Object.values(cart).reduce((a,b)=>a+b, 0); document.getElementById('badge').innerText = n; document.getElementById('badge').classList.toggle('hidden', n===0); }
