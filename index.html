@@ -312,8 +312,7 @@
         }
 
         function openAdmin() { 
-            closeAll(); document.getElementById('adminPanel').classList.add('open'); toggleOverlay(true); 
-            renderAdminProducts();
+            window.open('admin.html', '_blank');
         }
         function renderAdminProducts() {
             document.getElementById('adminList').innerHTML = DATA.map(p => `
