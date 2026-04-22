@@ -104,6 +104,22 @@
     <!-- MOBILE NAV -->
     <nav class="md:hidden fixed bottom-0 left-0 w-full h-16 glass border-t border-[var(--border)] flex justify-around items-center px-4 z-[150]"><div onclick="window.scrollTo({top:0,behavior:'smooth'})" class="flex flex-col items-center text-black cursor-pointer"><span class="material-symbols-outlined">home</span><span class="text-[9px] font-black mt-1 uppercase">Home</span></div><div onclick="openAccount()" class="flex flex-col items-center text-gray-400 cursor-pointer"><span class="material-symbols-outlined">account_circle</span><span class="text-[9px] font-black mt-1 uppercase">Account</span></div></nav>
 
+    <!-- ADMIN PANEL SHEET -->
+    <div id="adminPanel" class="sheet">
+        <div class="sheet-header">
+            <h2 class="h1 italic !text-2xl">OWNER PORTAL</h2>
+            <button onclick="closeAll()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+        </div>
+        <div class="p-8 pb-32 overflow-y-auto h-full">
+            <p class="meta-text mb-10">Warehouse Inventory Management</p>
+            <div id="adminList">
+                <!-- Admin products render here -->
+            </div>
+        </div>
+    </div>
+
     <div id="overlay" class="fixed inset-0 bg-black/60 opacity-0 pointer-events-none transition-opacity duration-500 z-[400]" onclick="closeAll()"></div>
     
     <!-- SIDECART -->
@@ -146,7 +162,23 @@
                     <button onclick="resetLogin()" class="w-full meta-text !text-gray-400">Change Number</button>
                 </div>
             </div>
-            <div id="profileView" class="hidden space-y-12 pb-20"><div class="flex items-center justify-between"><div><h5 id="profileName" class="h2 italic mb-1"></h5><p class="meta-text">Member</p></div><button onclick="logout()" class="text-red-500 text-[10px] font-black uppercase">Exit</button></div><div class="space-y-6"><h4 class="meta-text !text-black font-black">Addresses</h4><div id="profileAddrList" class="space-y-3"></div><button onclick="showAddrForm()" class="w-full border-2 border-black p-3 rounded-full btn-text !text-[9px]">+ Add New</button></div><div id="addrForm" class="hidden space-y-4 bg-gray-50 p-6 rounded-3xl"><div class="flex gap-3"><div class="field-box flex-1"><span class="material-symbols-outlined field-icon">home</span><input id="newFlat" placeholder="Flat No"></div><div class="field-box flex-1"><span class="material-symbols-outlined field-icon">layers</span><input id="newFloor" placeholder="Floor"></div></div><div class="field-box"><span class="material-symbols-outlined field-icon">map</span><input id="newStreet" placeholder="Street / Area"></div><button onclick="saveAddr()" class="w-full bg-black text-white py-4 rounded-full btn-text">Save Location</button></div><div class="space-y-6"><h4 class="meta-text !text-black font-black">Order History</h4><div id="orderHist" class="space-y-4"></div></div></div>
+            <div id="profileView" class="hidden space-y-12 pb-20">
+                <div class="flex items-center gap-4 mb-12">
+                    <div class="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center h3 italic !text-xl"><span id="userNameChar">C</span></div>
+                    <div><h2 class="h1 !text-2xl !italic" id="profileName">Customer</h2><p class="meta-text">LOUD Elite Member</p></div>
+                </div>
+                
+                <button id="adminToggle" onclick="openAdmin()" class="hidden w-full mb-4 bg-orange-500 text-white p-5 rounded-3xl flex justify-between items-center group">
+                    <div class="flex items-center gap-4"><span class="material-symbols-outlined">shield_person</span><span class="btn-text !text-xs uppercase">Manage Store</span></div>
+                    <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">chevron_right</span>
+                </button>
+                <button onclick="shareStore()" class="w-full mb-10 bg-green-50 text-green-600 p-5 rounded-3xl flex justify-between items-center group">
+                    <div class="flex items-center gap-4"><span class="material-symbols-outlined">share</span><span class="btn-text !text-xs uppercase text-left">Share LOUD & Earn ₹50</span></div>
+                    <span class="material-symbols-outlined group-hover:scale-125 transition-transform">card_giftcard</span>
+                </button>
+
+                <div class="space-y-6"><h4 class="meta-text !text-black font-black">Addresses</h4><div id="profileAddrList" class="space-y-3"></div><button onclick="showAddrForm()" class="w-full border-2 border-black p-3 rounded-full btn-text !text-[9px]">+ Add New</button></div><div id="addrForm" class="hidden space-y-4 bg-gray-50 p-6 rounded-3xl"><div class="flex gap-3"><div class="field-box flex-1"><span class="material-symbols-outlined field-icon">home</span><input id="newFlat" placeholder="Flat No"></div><div class="field-box flex-1"><span class="material-symbols-outlined field-icon">layers</span><input id="newFloor" placeholder="Floor"></div></div><div class="field-box"><span class="material-symbols-outlined field-icon">map</span><input id="newStreet" placeholder="Street / Area"></div><button onclick="saveAddr()" class="w-full bg-black text-white py-4 rounded-full btn-text">Save Location</button></div><div class="space-y-6"><h4 class="meta-text !text-black font-black">Order History</h4><div id="orderHist" class="space-y-4"></div><button onclick="logout()" class="text-red-500 text-[10px] font-black uppercase mt-10">Exit Account</button></div>
+            </div>
         </div>
     </div>
 
@@ -167,7 +199,8 @@
             render();
             const { data, error } = await _supabase
                 .from('products')
-                .select('*');
+                .select('*')
+                .order('id', { ascending: true });
             
             if (error) {
                 console.error('Error fetching products:', error);
@@ -206,25 +239,31 @@
         function openAccount() { document.getElementById('sideAccount').classList.add('open'); toggleOverlay(true); renderAccount(); }
         function closeAccount() { document.getElementById('sideAccount').classList.remove('open'); toggleOverlay(false); }
         function closeAll() { 
-            document.querySelectorAll('#sideCart, #sideAccount, #pdp, #checkoutSheet').forEach(el => el.classList.remove('open'));
+            document.querySelectorAll('#sideCart, #sideAccount, #pdp, #checkoutSheet, #adminPanel').forEach(el => el.classList.remove('open'));
             toggleOverlay(false);
         }
         function closePDP() { document.getElementById('pdp').classList.remove('open'); toggleOverlay(false); }
         function closeCheckout() { document.getElementById('checkoutSheet').classList.remove('open'); toggleOverlay(false); }
 
+        function shareStore() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'LOUD | Quick Commerce',
+                    text: 'Check out LOUD! Get groceries in 10 mins at warehouse prices. 🚀',
+                    url: window.location.href
+                });
+            } else {
+                alert("Copy this link: " + window.location.href);
+            }
+        }
+
         function sendOTP() {
             const phone = document.getElementById('loginPhone').value;
             if(!phone || phone.length < 10) return alert("Enter valid phone");
-            
-            // Generate Code
             generatedOTP = Math.floor(1000 + Math.random() * 9000).toString();
-            
-            // Open WhatsApp Intent
             const msg = `My LOUD Verification Code is: ${generatedOTP}`;
             const url = `https://wa.me/${BIZ_WA}?text=${encodeURIComponent(msg)}`;
-            
             window.open(url, '_blank');
-            
             document.getElementById('phoneStep').classList.add('hidden');
             document.getElementById('otpStep').classList.remove('hidden');
         }
@@ -236,10 +275,7 @@
         function verifyOTP() {
             const entered = document.getElementById('loginOTP').value;
             if(!entered) return;
-            
-            if(entered !== generatedOTP && entered !== "0000") {
-                return alert("Invalid Code. Check your WhatsApp message.");
-            }
+            if(entered !== generatedOTP && entered !== "0000") return alert("Invalid Code");
 
             user = { name: "Customer", phone: document.getElementById('loginPhone').value };
             localStorage.setItem('user', JSON.stringify(user));
@@ -254,30 +290,61 @@
                 document.getElementById('profileView').classList.remove('hidden');
                 document.getElementById('profileName').innerText = user.name;
                 document.getElementById('userName').innerText = user.name.split(' ')[0];
+                document.getElementById('userNameChar').innerText = user.name[0].toUpperCase();
                 document.getElementById('profileAddrList').innerHTML = addresses.map(a => `<div class="p-4 bg-gray-50 rounded-2xl text-[11px] font-semibold">${a.flat}, Floor ${a.floor}, ${a.street}</div>`).join('') || '<p class="text-xs text-gray-300">No locations.</p>';
                 
-                // Fetch History from Supabase
-                const { data, error } = await _supabase
-                    .from('orders')
-                    .select('*')
-                    .eq('customer_phone', user.phone)
-                    .order('created_at', { ascending: false });
-                
+                const isAdmin = user.phone.includes(BIZ_WA);
+                document.getElementById('adminToggle').classList.toggle('hidden', !isAdmin);
+
+                const { data, error } = await _supabase.from('orders').select('*').eq('customer_phone', user.phone).order('created_at', { ascending: false });
                 if (!error && data) {
                     history = data;
                     document.getElementById('orderHist').innerHTML = history.map(h => `
-                        <div class="p-5 border border-gray-100 rounded-3xl flex justify-between items-center">
+                        <div class="p-5 border border-gray-100 rounded-3xl flex justify-between items-center mb-4">
                             <div>
                                 <p class="meta-text !text-black mb-1">#ORD-${h.id}</p>
                                 <p class="h3 !text-sm italic">₹${h.total_amount}</p>
-                                <p class="text-[8px] opacity-40 uppercase font-black">${new Date(h.created_at).toLocaleDateString()}</p>
                             </div>
                             <span class="text-[9px] font-black ${h.status === 'Delivered' ? 'text-green-500' : 'text-orange-500'} uppercase">${h.status}</span>
-                        </div>`).join('') || '<p class="text-xs text-gray-300">No history found.</p>';
-                } else {
-                    document.getElementById('orderHist').innerHTML = '<p class="text-xs text-gray-300">Loading history...</p>';
+                        </div>`).join('') || '<p class="text-xs text-gray-300 text-center py-10">No orders yet.</p>';
                 }
             }
+        }
+
+        function openAdmin() { 
+            closeAll(); document.getElementById('adminPanel').classList.add('open'); toggleOverlay(true); 
+            renderAdminProducts();
+        }
+        function renderAdminProducts() {
+            document.getElementById('adminList').innerHTML = DATA.map(p => `
+                <div class="p-6 border border-gray-100 rounded-3xl mb-4 bg-white shadow-sm">
+                    <div class="flex gap-4 items-center mb-6">
+                        <img src="${p.img[0]}" class="w-12 h-12 object-contain bg-gray-50 rounded-lg"/>
+                        <div class="flex-1">
+                            <h4 class="h3 !text-sm uppercase">${p.name}</h4>
+                            <p class="meta-text !text-[10px]">#${p.id}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="meta-text !text-[8px] mb-2 block">Price (₹)</label>
+                            <input type="number" id="price-${p.id}" value="${p.d}" class="w-full bg-gray-50 p-3 rounded-xl font-bold text-sm outline-none border-none"/>
+                        </div>
+                        <div>
+                            <label class="meta-text !text-[8px] mb-2 block">Stock</label>
+                            <input type="number" id="stock-${p.id}" value="${p.stock}" class="w-full bg-gray-50 p-3 rounded-xl font-bold text-sm outline-none border-none"/>
+                        </div>
+                    </div>
+                    <button onclick="saveProduct(${p.id})" class="w-full mt-4 bg-black text-white py-3 rounded-xl text-[10px] font-black uppercase">Update Product</button>
+                </div>
+            `).join('');
+        }
+        async function saveProduct(id) {
+            const p = document.getElementById(`price-${id}`).value;
+            const s = document.getElementById(`stock-${id}`).value;
+            const { error } = await _supabase.from('products').update({ discount_price: p, stock: s }).eq('id', id);
+            if (error) alert("Error updating");
+            else { alert("Updated Successfully!"); fetchProducts(); }
         }
 
         function render() {
@@ -287,10 +354,7 @@
                         <div class="aspect-square skeleton rounded-2xl mb-6"></div>
                         <div class="h-4 skeleton w-3/4 mb-2"></div>
                         <div class="h-3 skeleton w-1/2 mb-8"></div>
-                        <div class="flex justify-between items-center mt-auto">
-                            <div class="h-6 skeleton w-12"></div>
-                            <div class="h-10 skeleton w-20 rounded-full"></div>
-                        </div>
+                        <div class="flex justify-between items-center mt-auto"><div class="h-6 skeleton w-12"></div><div class="h-10 skeleton w-20 rounded-full"></div></div>
                     </div>`).join('');
                 document.getElementById('list').innerHTML = skeletons;
                 document.getElementById('essentialsList').innerHTML = Array(3).fill(0).map(() => `
@@ -306,7 +370,7 @@
             const filtered = DATA.filter(p => (cat === "All" || p.cat === cat) && p.name.toLowerCase().includes(q));
             
             if (filtered.length === 0) {
-                document.getElementById('list').innerHTML = `<div class="col-span-full py-20 text-center opacity-30 h3">No products found in this section.</div>`;
+                document.getElementById('list').innerHTML = `<div class="col-span-full py-20 text-center opacity-30 h3">No products found.</div>`;
             } else {
                 document.getElementById('list').innerHTML = filtered.map(p => {
                     const n = cart[p.id] || 0;
@@ -314,54 +378,41 @@
                     const isLim = p.stock > 0 && p.stock < 5;
                     return `<div class="bg-white border border-gray-100 p-6 lg:p-8 rounded-3xl flex flex-col transition-all ${isOut ? 'opacity-40 grayscale pointer-events-none' : 'active:scale-95 cursor-pointer'}" onclick="openPDP(${p.id})">
                         <div class="relative aspect-square bg-gray-50 rounded-2xl mb-6 flex items-center justify-center p-6">
-                            <img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/706/706164.png'" class="w-full object-contain max-h-full"/>
+                            <img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/706/706164.png'" class="w-full object-contain max-h-full transition-transform group-hover:scale-105"/>
                             ${isOut ? `<span class="absolute top-4 right-4 bg-black text-white text-[8px] font-black px-3 py-1.5 rounded-full uppercase">Sold Out</span>` : ''}
                             ${isLim ? `<span class="absolute top-4 right-4 bg-orange-500 text-white text-[8px] font-black px-3 py-1.5 rounded-full uppercase">Only ${p.stock} Left</span>` : ''}
                         </div>
                         <h3 class="h3 !text-sm lg:!text-lg mb-1 line-clamp-1">${p.name}</h3><p class="meta-text mb-8">${p.w}</p>
                         <div class="flex items-center justify-between mt-auto" onclick="event.stopPropagation()"><div class="flex flex-col"><span class="text-[10px] text-gray-300 line-through">₹${p.p}</span><span class="h3 !text-sm lg:!text-lg">₹${p.d}</span></div>
-                        <div>${n === 0 ? `<button onclick="upd(${p.id},1)" class="bg-black text-white px-7 py-2.5 rounded-full btn-text !text-[11px]" ${isOut ? 'disabled' : ''}>${isOut ? 'N/A' : 'Add'}</button>` : `<div class="stepper !w-[85px] lg:!w-[105px] !h-[40px] lg:!h-[48px]"><div class="step-btn" onclick="upd(${p.id},-1)">-</div><div class="font-black text-[12px]">${n}</div><div class="step-btn" onclick="upd(${p.id},1)">+</div></div>`}</div></div></div>`
+                        <div>${n === 0 ? `<button onclick="upd(${p.id},1)" class="bg-black text-white px-7 py-2.5 rounded-full btn-text !text-[11px]" ${isOut ? 'disabled' : ''}>Add</button>` : `<div class="stepper !w-[85px] lg:!w-[105px] !h-[40px] lg:!h-[48px]"><div class="step-btn" onclick="upd(${p.id},-1)">-</div><div class="font-black text-[12px]">${n}</div><div class="step-btn" onclick="upd(${p.id},1)">+</div></div>`}</div></div></div>`
                 }).join('');
             }
 
             document.getElementById('essentialsList').innerHTML = DATA.slice(0, 6).map(p => {
                 const n = cart[p.id] || 0;
                 return `<div class="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-3xl group cursor-pointer" onclick="openPDP(${p.id})">
-                    <img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/706/706164.png'" class="w-14 h-14 object-contain"/><div class="flex-1"><h5 class="h3 !text-sm uppercase line-clamp-1">${p.name}</h5><p class="meta-text !text-[10px]">₹${p.d}</p></div>
+                    <img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" class="w-14 h-14 object-contain transition-transform group-hover:scale-110"/><div class="flex-1"><h5 class="h3 !text-sm uppercase line-clamp-1">${p.name}</h5><p class="meta-text !text-[10px]">₹${p.d}</p></div>
                     <div onclick="event.stopPropagation()">${n === 0 ? `<button onclick="upd(${p.id},1)" class="bg-black text-white text-[10px] font-black px-5 py-2.5 rounded-full" ${p.stock === 0 ? 'disabled' : ''}>Add</button>` : `<div class="stepper !w-[80px] !h-[36px]"><div class="step-btn" onclick="upd(${p.id},-1)">-</div><div class="text-[11px] font-black">${n}</div><div class="step-btn" onclick="upd(${p.id},1)">+</div></div>`}</div></div>`
             }).join('');
-            renderCategories();
-            sync();
+            renderCategories(); sync();
         }
 
         function renderCategories() {
             const cats = ["All", ...new Set(DATA.map(p => p.cat))];
-            const icons = {
-                "All": "grid_view",
-                "Dairy": "egg_alt",
-                "Pantry": "restaurant",
-                "Produce": "eco",
-                "Beverages": "local_bar",
-                "Snacks": "fastfood",
-                "Household": "home_repair_service",
-                "Personal Care": "face",
-                "Kitchen": "outdoor_grill"
-            };
+            const icons = { "All": "grid_view", "Dairy": "egg_alt", "Pantry": "restaurant", "Produce": "eco", "Beverages": "local_bar", "Snacks": "fastfood", "Household": "home_repair_service", "Personal Care": "face", "Kitchen": "outdoor_grill" };
             document.getElementById('categoryTabs').innerHTML = cats.map(c => `
                 <div onclick="setCat('${c}')" class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer group">
-                    <div class="w-16 lg:w-24 h-16 lg:h-24 ${cat === c ? 'bg-black text-white shadow-xl scale-105' : 'bg-white text-black'} border border-gray-100 rounded-2xl flex items-center justify-center group-hover:border-black transition-all">
+                    <div class="w-16 lg:w-24 h-16 lg:h-24 ${cat === c ? 'bg-black text-white shadow-2xl scale-105' : 'bg-white text-black'} border border-gray-100 rounded-3xl flex items-center justify-center group-hover:border-black transition-all">
                         <span class="material-symbols-outlined text-3xl">${icons[c] || 'category'}</span>
                     </div>
                     <span class="meta-text !text-black ${cat === c ? 'font-black underline underline-offset-4' : ''}">${c}</span>
-                </div>
-            `).join('');
+                </div>`).join('');
         }
 
         function openPDP(id) {
             const p = DATA.find(x=>x.id==id); const n = cart[id] || 0;
             const related = DATA.filter(x => x.cat === p.cat && x.id !== p.id).slice(0, 4);
-            
-            document.getElementById('pdpContent').innerHTML = `<div class="p-8 lg:p-12"><div class="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory mb-12">${p.img.map(img => `<div class="min-w-full aspect-square bg-gray-50 rounded-3xl snap-center flex items-center justify-center p-12 lg:p-20"><img src="${img}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/706/706164.png'" class="w-full h-full object-contain"/></div>`).join('')}</div><div class="flex justify-between items-start mb-8"><div><span class="bg-green-50 text-green-600 text-[10px] font-black px-4 py-1.5 rounded-full uppercase mb-4 inline-block">${p.avail}</span><h2 class="h1 !italic !text-3xl">${p.name}</h2></div><div class="text-right"><p class="text-gray-400 line-through text-sm">₹${p.p}</p><p class="h1 italic !text-4xl">₹${p.d}</p></div></div><p class="meta-text mb-10">${p.w} • #WAREHOUSE-${p.id}</p><p class="text-gray-500 mb-16">${p.desc}</p><div class="mt-20"><h4 class="meta-text !text-black font-black mb-8">You Might Also Like</h4><div class="grid grid-cols-2 gap-4">${related.map(r => `<div class="p-4 bg-gray-50 rounded-3xl border border-gray-100" onclick="openPDP(${r.id})"><img src="${r.img[0]}" class="w-20 h-20 object-contain mx-auto mb-4 grayscale"/><p class="h3 !text-[11px] uppercase text-center line-clamp-1">${r.name}</p></div>`).join('')}</div></div></div>`;
+            document.getElementById('pdpContent').innerHTML = `<div class="p-8 lg:p-12"><div class="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory mb-12">${p.img.map(img => `<div class="min-w-full aspect-square bg-gray-50 rounded-3xl snap-center flex items-center justify-center p-12 lg:p-20"><img src="${img}" class="w-full h-full object-contain"/></div>`).join('')}</div><div class="flex justify-between items-start mb-8"><div><span class="bg-green-50 text-green-600 text-[10px] font-black px-4 py-1.5 rounded-full uppercase mb-4 inline-block">${p.avail}</span><h2 class="h1 !italic !text-3xl">${p.name}</h2></div><div class="text-right"><p class="text-gray-400 line-through text-sm">₹${p.p}</p><p class="h1 italic !text-4xl">₹${p.d}</p></div></div><p class="meta-text mb-10">${p.w} • #WAREHOUSE-${p.id}</p><p class="text-gray-500 mb-16">${p.desc}</p><div class="mt-20"><h4 class="meta-text !text-black font-black mb-8">Discovery Core</h4><div class="grid grid-cols-2 gap-4">${related.map(r => `<div class="p-4 bg-gray-50 rounded-3xl border border-gray-100" onclick="openPDP(${r.id})"><img src="${r.img[0]}" class="w-20 h-20 object-contain mx-auto mb-4 grayscale"/><p class="h3 !text-[11px] uppercase text-center line-clamp-1">${r.name}</p></div>`).join('')}</div></div></div>`;
             document.getElementById('pdpFooter').innerHTML = `<div class="h3 italic">₹${p.d}</div><div id="pdpAction">${n===0 ? `<button onclick="upd(${p.id},1); openPDP(${p.id});" class="bg-black text-white btn-pro btn-text" ${p.stock === 0 ? 'disabled' : ''}>Add to Cart</button>` : `<div class="stepper !w-[180px] !h-[64px]"><div class="step-btn text-3xl" onclick="upd(${p.id},-1); openPDP(${p.id});">-</div><div class="font-black text-2xl">${n}</div><div class="step-btn text-3xl" onclick="upd(${p.id},1); openPDP(${p.id});">+</div></div>`}</div>`;
             document.getElementById('pdp').classList.add('open'); toggleOverlay(true);
         }
@@ -398,40 +449,19 @@
         }
         function selectAddr(i) { selAddrIdx = i; renderCheckoutAddrs(); }
         function showPayment() { document.getElementById('shippingView').classList.add('hidden'); document.getElementById('paymentView').classList.remove('hidden'); document.getElementById('checkoutTitle').innerText = "Payment"; }
+        
         async function completeOrder() {
             const ids = Object.keys(cart).filter(i=>cart[i]>0);
             const sub = ids.reduce((s,i)=>s+(DATA.find(x=>x.id==i).d*cart[i]), 0);
             const total = sub + (sub >= 199 ? 0 : 30);
-            
-            const orderItems = ids.map(i => {
-                const p = DATA.find(x=>x.id==i);
-                return { id: i, name: p.name, qty: cart[i], price: p.d };
-            });
-
+            const orderItems = ids.map(i => { const p = DATA.find(x=>x.id==i); return { id: i, name: p.name, qty: cart[i], price: p.d }; });
             const selAddr = addresses[selAddrIdx];
-            const orderData = {
-                customer_name: user.name,
-                customer_phone: user.phone,
-                total_amount: total,
-                items: orderItems,
-                address: selAddr,
-                utr: document.getElementById('utr').value || 'UPI-PENDING'
-            };
+            const orderData = { customer_name: user.name, customer_phone: user.phone, total_amount: total, items: orderItems, address: selAddr, utr: document.getElementById('utr').value || 'UPI-PENDING' };
 
-            const { data, error } = await _supabase
-                .from('orders')
-                .insert([orderData])
-                .select();
+            const { data, error } = await _supabase.from('orders').insert([orderData]).select();
+            if (error) return alert("Order failed to sync.");
 
-            if (error) {
-                console.error("Order Error:", error);
-                return alert("Order failed to sync. Please try again.");
-            }
-
-            const newOrder = data[0];
-            history.unshift(newOrder);
-            localStorage.setItem('hist', JSON.stringify(history));
-            
+            const newOrder = data[0]; history.unshift(newOrder); localStorage.setItem('hist', JSON.stringify(history));
             cart = {}; localStorage.setItem('cart', '{}'); selAddrIdx = -1; render(); closeAll();
             document.getElementById('modal').classList.remove('hidden');
             document.getElementById('modalContent').innerHTML = `<div class="w-full max-w-[600px] bg-white p-12 rounded-3xl text-center shadow-2xl"><div class="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-10"><span class="material-symbols-outlined text-5xl">verified</span></div><h2 class="h1 italic mb-4">SUCCESS</h2><p class="meta-text mb-10">Order #ORD-${newOrder.id} confirmed</p><div class="flex justify-between mb-16 mt-16 px-4"><div class="tracking-step active"><div class="step-dot"><span class="material-symbols-outlined">receipt_long</span></div><span class="meta-text !text-[8px] font-black">Ordered</span></div><div class="tracking-step active"><div class="step-dot"><span class="material-symbols-outlined">package_2</span></div><span class="meta-text !text-[8px] font-black">Packing</span></div><div class="tracking-step"><div class="step-dot"><span class="material-symbols-outlined">delivery_dining</span></div><span class="meta-text !text-[8px] font-black">On Way</span></div></div><button onclick="location.reload()" class="w-full bg-black text-white py-6 rounded-full btn-text uppercase">View in Account</button></div>`;
