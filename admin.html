@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOUD | ADMIN DASHBOARD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        :root { --black: #000000; --white: #FFFFFF; --accent: #FF5C00; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8f8f8; }
+        .h1 { font-weight: 900; letter-spacing: -0.05em; text-transform: uppercase; }
+        .btn-text { font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .card { background: white; border-radius: 32px; border: 1px solid #f0f0f0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { border-color: black; transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+        .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 16px; font-weight: 700; font-size: 13px; text-transform: uppercase; transition: all 0.2s; color: #666; }
+        .sidebar-link.active { background: black; color: white; }
+        input { border: 1px solid #eee; transition: all 0.2s; }
+        input:focus { border-color: black; outline: none; background: white; }
+    </style>
+</head>
+<body class="flex min-h-screen">
+
+    <!-- SIDEBAR -->
+    <aside class="w-72 bg-white border-r border-gray-100 p-8 flex flex-col fixed h-full">
+        <div class="mb-16">
+            <h1 class="h1 italic text-3xl">LOUD<span class="text-orange-500">.</span></h1>
+            <p class="text-[10px] font-black uppercase tracking-widest opacity-30">Admin Control</p>
+        </div>
+
+        <nav class="space-y-4 flex-1">
+            <div onclick="setView('inventory')" id="nav-inventory" class="sidebar-link active cursor-pointer">
+                <span class="material-symbols-outlined">inventory_2</span> Inventory
+            </div>
+            <div onclick="setView('orders')" id="nav-orders" class="sidebar-link cursor-pointer">
+                <span class="material-symbols-outlined">receipt_long</span> Live Orders
+            </div>
+            <div onclick="setView('analytics')" id="nav-analytics" class="sidebar-link cursor-pointer">
+                <span class="material-symbols-outlined">analytics</span> Analytics
+            </div>
+        </nav>
+
+        <div class="pt-8 border-t border-gray-50">
+            <button onclick="location.href='index.html'" class="w-full bg-gray-50 text-black py-4 rounded-2xl btn-text text-[10px] hover:bg-black hover:text-white transition-all">Back to Store</button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="ml-72 flex-1 p-12 lg:p-20">
+        
+        <header class="flex justify-between items-end mb-16">
+            <div>
+                <h2 id="viewTitle" class="h1 italic text-5xl">INVENTORY</h2>
+                <p id="viewSub" class="meta-text text-gray-400 mt-2">Manage your warehouse products and prices</p>
+            </div>
+            <div id="statsRow" class="flex gap-8">
+                <!-- Quick Stats -->
+            </div>
+        </header>
+
+        <!-- SEARCH BAR -->
+        <div id="inventoryControls" class="mb-12 flex gap-4">
+            <div class="flex-1 relative">
+                <span class="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-gray-300">search</span>
+                <input type="text" id="adminSearch" oninput="renderInventory()" placeholder="Search product name or ID..." class="w-full pl-16 pr-8 py-5 bg-white rounded-3xl text-sm font-bold shadow-sm">
+            </div>
+            <button onclick="fetchData()" class="bg-black text-white px-8 rounded-3xl flex items-center gap-3 active:scale-95 transition-all">
+                <span class="material-symbols-outlined">refresh</span>
+            </button>
+        </div>
+
+        <!-- CONTENT AREA -->
+        <div id="contentArea">
+            <!-- Dynamic content injected here -->
+        </div>
+
+    </main>
+
+    <!-- MODAL FOR EDITING -->
+    <div id="editModal" class="fixed inset-0 bg-black/60 backdrop-blur-md hidden flex items-center justify-center z-[500] p-6">
+        <div class="bg-white w-full max-w-xl rounded-[40px] p-12 relative shadow-2xl">
+            <button onclick="closeModal()" class="absolute top-8 right-8 w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <h3 class="h1 italic text-3xl mb-12">Edit Product</h3>
+            <div id="modalBody" class="space-y-8">
+                <!-- Edit fields -->
+            </div>
+            <div id="modalFooter" class="mt-12 flex gap-4">
+                <button onclick="saveProduct()" class="flex-1 bg-black text-white py-6 rounded-3xl btn-text">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = "https://asvelariyhlcrnujtqsq.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzdmVsYXJpeWhsY3JudWp0cXNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzNTkxMTAsImV4cCI6MjA2MDkzNTExMH0.4N8-4zLpU9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9"; // Placeholder, real key injected below
+        
+        // We'll use the user's existing config from the main page
+        const _supabase = supabase.createClient(SB_URL, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzdmVsYXJpeWhsY3JudWp0cXNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUzNTkxMTAsImV4cCI6MjA2MDkzNTExMH0.4N8-4zLpU9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9P_9");
+
+        let DATA = [];
+        let ORDERS = [];
+        let currentView = 'inventory';
+        let editingId = null;
+
+        async function fetchData() {
+            const { data: p } = await _supabase.from('products').select('*').order('id');
+            const { data: o } = await _supabase.from('orders').select('*').order('created_at', { ascending: false });
+            DATA = p || [];
+            ORDERS = o || [];
+            render();
+        }
+
+        function setView(v) {
+            currentView = v;
+            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(`nav-${v}`).classList.add('active');
+            
+            const titles = { inventory: 'INVENTORY', orders: 'LIVE ORDERS', analytics: 'ANALYTICS' };
+            const subs = { inventory: 'Manage warehouse products and prices', orders: 'Real-time customer order stream', analytics: 'Warehouse performance and growth' };
+            
+            document.getElementById('viewTitle').innerText = titles[v];
+            document.getElementById('viewSub').innerText = subs[v];
+            document.getElementById('inventoryControls').classList.toggle('hidden', v !== 'inventory');
+            
+            render();
+        }
+
+        function render() {
+            if (currentView === 'inventory') renderInventory();
+            else if (currentView === 'orders') renderOrders();
+            else if (currentView === 'analytics') renderAnalytics();
+        }
+
+        function renderInventory() {
+            const q = document.getElementById('adminSearch').value.toLowerCase();
+            const filtered = DATA.filter(p => p.name.toLowerCase().includes(q) || p.id.toString().includes(q));
+            
+            document.getElementById('contentArea').innerHTML = `
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    ${filtered.map(p => `
+                        <div class="card p-8 flex gap-8 items-center">
+                            <div class="w-24 h-24 bg-gray-50 rounded-3xl flex items-center justify-center p-4">
+                                <img src="${p.image_url}" class="w-full h-full object-contain"/>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-[10px] font-black uppercase text-gray-300 mb-1">#WAREHOUSE-${p.id}</p>
+                                <h4 class="h1 italic !text-xl mb-4">${p.name}</h4>
+                                <div class="flex gap-6">
+                                    <div><p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Price</p><p class="font-black text-lg">₹${p.discount_price}</p></div>
+                                    <div><p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Stock</p><p class="font-black text-lg ${p.stock < 5 ? 'text-orange-500' : ''}">${p.stock}</p></div>
+                                    <div><p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Category</p><p class="font-bold text-gray-400 text-sm">${p.category}</p></div>
+                                </div>
+                            </div>
+                            <button onclick="openEdit(${p.id})" class="w-14 h-14 bg-gray-50 hover:bg-black hover:text-white rounded-2xl flex items-center justify-center transition-all">
+                                <span class="material-symbols-outlined text-xl">edit</span>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderOrders() {
+            document.getElementById('contentArea').innerHTML = `
+                <div class="space-y-6">
+                    ${ORDERS.map(o => `
+                        <div class="card p-10 flex justify-between items-center">
+                            <div class="flex gap-8 items-center">
+                                <div class="w-16 h-16 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-3xl">shopping_bag</span>
+                                </div>
+                                <div>
+                                    <h4 class="h1 italic !text-2xl mb-1">#ORD-${o.id}</h4>
+                                    <p class="text-sm font-bold">${o.customer_name} • ${o.customer_phone}</p>
+                                </div>
+                            </div>
+                            <div class="text-center px-12 border-x border-gray-50">
+                                <p class="text-[10px] font-black uppercase text-gray-300 mb-1">Items</p>
+                                <p class="font-bold text-sm">${o.items.length} Products</p>
+                            </div>
+                            <div class="text-center px-12">
+                                <p class="text-[10px] font-black uppercase text-gray-300 mb-1">Total Paid</p>
+                                <p class="h1 italic !text-2xl">₹${o.total_amount}</p>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="px-6 py-2 rounded-full bg-green-50 text-green-600 text-[10px] font-black uppercase">${o.status}</span>
+                                <p class="text-[10px] text-gray-300">${new Date(o.created_at).toLocaleString()}</p>
+                            </div>
+                        </div>
+                    `).join('') || '<p class="py-20 text-center text-gray-300">No live orders found.</p>'}
+                </div>
+            `;
+        }
+
+        function renderAnalytics() {
+            const totalRev = ORDERS.reduce((s,o)=>s+o.total_amount, 0);
+            const lowStock = DATA.filter(p=>p.stock < 5).length;
+            document.getElementById('contentArea').innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                    <div class="card p-12 bg-black text-white">
+                        <p class="meta-text !text-gray-400 mb-4">Gross Revenue</p>
+                        <h3 class="h1 italic text-6xl">₹${totalRev}</h3>
+                    </div>
+                    <div class="card p-12">
+                        <p class="meta-text mb-4">Total Orders</p>
+                        <h3 class="h1 italic text-6xl text-orange-500">${ORDERS.length}</h3>
+                    </div>
+                    <div class="card p-12">
+                        <p class="meta-text mb-4">Low Stock Alerts</p>
+                        <h3 class="h1 italic text-6xl ${lowStock > 0 ? 'text-red-500' : 'text-green-500'}">${lowStock}</h3>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openEdit(id) {
+            const p = DATA.find(x => x.id === id);
+            editingId = id;
+            document.getElementById('modalBody').innerHTML = `
+                <div class="grid grid-cols-2 gap-8">
+                    <div class="col-span-2">
+                        <label class="meta-text !text-black font-black mb-3 block uppercase">Product Name</label>
+                        <input type="text" id="editName" value="${p.name}" class="w-full p-6 bg-gray-50 rounded-2xl font-bold border-none outline-none">
+                    </div>
+                    <div>
+                        <label class="meta-text !text-black font-black mb-3 block uppercase">Price (₹)</label>
+                        <input type="number" id="editPrice" value="${p.discount_price}" class="w-full p-6 bg-gray-50 rounded-2xl font-bold border-none outline-none">
+                    </div>
+                    <div>
+                        <label class="meta-text !text-black font-black mb-3 block uppercase">Stock Level</label>
+                        <input type="number" id="editStock" value="${p.stock}" class="w-full p-6 bg-gray-50 rounded-2xl font-bold border-none outline-none">
+                    </div>
+                </div>
+            `;
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('editModal').classList.add('hidden'); }
+
+        async function saveProduct() {
+            const n = document.getElementById('editName').value;
+            const p = document.getElementById('editPrice').value;
+            const s = document.getElementById('editStock').value;
+            
+            const { error } = await _supabase.from('products')
+                .update({ name: n, discount_price: p, stock: s })
+                .eq('id', editingId);
+            
+            if (error) alert("Error: " + error.message);
+            else {
+                closeModal();
+                fetchData();
+            }
+        }
+
+        fetchData();
+    </script>
+</body>
+</html>
