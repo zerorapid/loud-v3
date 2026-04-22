@@ -131,6 +131,7 @@
             </div>
             <button onclick="toggleCart(false)" class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center font-black">×</button>
         </div>
+        
         <div id="deliveryPromo" class="px-8 lg:px-10 py-8 bg-zinc-950 border-b border-white/5 hidden shadow-inner">
             <div class="flex justify-between items-center mb-4">
                 <p id="promoText" class="meta-text !text-white !text-[10px] font-black tracking-widest uppercase"></p>
@@ -139,10 +140,34 @@
                 <div id="promoBar" class="h-full rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(255,255,255,0.3)]" style="width: 0%"></div>
             </div>
         </div>
+
         <div class="flex-1 overflow-y-auto p-8 lg:p-10 no-scrollbar" id="cartBody"></div>
+
+        <!-- COUPON SECTION IN CART -->
+        <div id="cartCouponSection" class="p-8 lg:p-10 bg-white border-t border-gray-50 space-y-6 hidden">
+            <div class="flex justify-between items-center"><h5 class="text-[9px] font-black uppercase text-gray-400 tracking-widest">Coupons & Offers</h5></div>
+            <div class="bg-gray-50 p-5 rounded-3xl border border-gray-100">
+                <div class="flex gap-4">
+                    <input id="cartCouponInput" type="text" placeholder="Enter Code" class="flex-1 !bg-white !p-4 !pl-6 rounded-2xl font-black uppercase text-xs border-none outline-none">
+                    <button onclick="applyCoupon()" class="bg-black text-white px-6 rounded-2xl btn-text !text-[9px]">Apply</button>
+                </div>
+                <p id="cartCouponMsg" class="text-[8px] font-black uppercase mt-3 hidden"></p>
+            </div>
+            <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                <div onclick="setCoupon('LOUD100')" class="min-w-[140px] p-4 bg-orange-50 border border-dashed border-orange-200 rounded-2xl cursor-pointer">
+                    <p class="font-black text-[10px] uppercase text-orange-600">LOUD100</p>
+                    <p class="text-[8px] text-orange-400 uppercase">₹100 Off</p>
+                </div>
+                <div onclick="setCoupon('FREE')" class="min-w-[140px] p-4 bg-green-50 border border-dashed border-green-200 rounded-2xl cursor-pointer">
+                    <p class="font-black text-[10px] uppercase text-green-600">FREE</p>
+                    <p class="text-[8px] text-green-400 uppercase">No Ship Fee</p>
+                </div>
+            </div>
+        </div>
+
         <div id="cartFooter" class="p-8 lg:p-10 bg-gray-50 border-t border-gray-100 space-y-8 hidden">
             <div id="bill" class="space-y-4"></div>
-            <button onclick="startCheckout()" class="w-full bg-black text-white btn-pro font-black uppercase text-[12px] tracking-widest shadow-2xl">Proceed to Ship</button>
+            <button onclick="startCheckout()" class="w-full bg-black text-white btn-pro font-black uppercase text-[12px] tracking-widest shadow-2xl">Proceed to Checkout</button>
         </div>
     </div>
 
@@ -472,15 +497,85 @@
             document.getElementById('pdp').classList.add('open'); toggleOverlay(true);
         }
 
+        let appliedCoupon = null;
         function renderCart() {
             const ids = Object.keys(cart).filter(i=>cart[i]>0);
-            if(ids.length===0) { document.getElementById('cartBody').innerHTML = `<div class="h-full flex flex-col items-center justify-center h3 opacity-10">Empty Cart</div>`; document.getElementById('cartFooter').classList.add('hidden'); document.getElementById('deliveryPromo').classList.add('hidden'); return; }
-            document.getElementById('cartFooter').classList.remove('hidden'); document.getElementById('deliveryPromo').classList.remove('hidden');
-            document.getElementById('cartBody').innerHTML = ids.map(i => { const p = DATA.find(x=>x.id==i); return `<div class="flex justify-between items-center mb-8"><div><h4 class="h3 !text-lg uppercase line-clamp-1">${p.name}</h4><p class="meta-text">₹${p.d}</p></div><div class="stepper"><div class="step-btn" onclick="upd(${i},-1)">-</div><div class="font-black">${cart[i]}</div><div class="step-btn" onclick="upd(${i},1)">+</div></div></div>` }).join('');
+            if(ids.length===0) { 
+                document.getElementById('cartBody').innerHTML = `<div class="h-full flex flex-col items-center justify-center h3 opacity-10">Empty Cart</div>`; 
+                document.getElementById('cartFooter').classList.add('hidden'); 
+                document.getElementById('deliveryPromo').classList.add('hidden'); 
+                document.getElementById('cartCouponSection').classList.add('hidden');
+                return; 
+            }
+            
+            document.getElementById('cartFooter').classList.remove('hidden'); 
+            document.getElementById('deliveryPromo').classList.remove('hidden');
+            document.getElementById('cartCouponSection').classList.remove('hidden');
+            
+            document.getElementById('cartBody').innerHTML = ids.map(i => { 
+                const p = DATA.find(x=>x.id==i); 
+                return `<div class="flex justify-between items-center mb-8"><div><h4 class="h3 !text-lg uppercase line-clamp-1">${p.name}</h4><p class="meta-text">₹${p.d}</p></div><div class="stepper"><div class="step-btn" onclick="upd(${i},-1)">-</div><div class="font-black">${cart[i]}</div><div class="step-btn" onclick="upd(${i},1)">+</div></div></div>` 
+            }).join('');
+
             const sub = ids.reduce((s,i)=>s+(DATA.find(x=>x.id==i).d*cart[i]), 0);
-            document.getElementById('bill').innerText = `Total: ₹${sub + (sub >= 199 ? 0 : 30)}`;
-            document.getElementById('promoBar').style.width = Math.min(100, (sub/199)*100) + "%";
-            document.getElementById('promoText').innerText = sub >= 199 ? "FREE DELIVERY" : `ADD ₹${199-sub} FOR FREE SHIP`;
+            
+            // TIERED DISCOUNT
+            let discountPct = 30;
+            let nextTier = 1000;
+            if (sub >= 2000) discountPct = 50;
+            else if (sub >= 1000) { discountPct = 40; nextTier = 2000; }
+            
+            const tierDiscount = Math.floor(sub * (discountPct / 100));
+            
+            // COUPON DISCOUNT
+            let deliveryFee = sub >= 199 ? 0 : 30;
+            let couponDiscount = 0;
+            if (appliedCoupon === 'LOUD100') couponDiscount = 100;
+            if (appliedCoupon === 'FREE') deliveryFee = 0;
+
+            const total = (sub - tierDiscount - couponDiscount) + deliveryFee;
+
+            // Update Progress Bar
+            const progress = sub >= 2000 ? 100 : (sub / 2000) * 100;
+            document.getElementById('promoBar').style.width = progress + "%";
+            document.getElementById('promoBar').style.background = sub >= 2000 ? '#22c55e' : (sub >= 1000 ? '#3b82f6' : '#f97316');
+
+            let promoMsg = sub >= 2000 ? "🎉 MAXIMUM 50% OFF UNLOCKED!" : `ADD ₹${nextTier - sub} FOR ${discountPct + 10}% OFF!`;
+            document.getElementById('promoText').innerText = promoMsg;
+
+            document.getElementById('bill').innerHTML = `
+                <div class="flex justify-between text-[10px] font-black uppercase text-gray-400"><span>Items Total</span><span>₹${sub}</span></div>
+                <div class="flex justify-between text-[10px] font-black uppercase text-green-500"><span>Tier Discount (${discountPct}%)</span><span>- ₹${tierDiscount}</span></div>
+                ${couponDiscount > 0 ? `<div class="flex justify-between text-[10px] font-black uppercase text-green-500"><span>Coupon Applied</span><span>- ₹${couponDiscount}</span></div>` : ''}
+                <div class="flex justify-between text-[10px] font-black uppercase text-gray-400"><span>Delivery Fee</span><span>${deliveryFee === 0 ? '<span class="text-green-500">FREE</span>' : '₹'+deliveryFee}</span></div>
+                <div class="pt-4 border-t border-black/5 flex justify-between items-center">
+                    <span class="h1 italic !text-xl">Total</span>
+                    <span class="h1 italic !text-2xl">₹${Math.max(0, total)}</span>
+                </div>
+            `;
+        }
+
+        function setCoupon(code) {
+            document.getElementById('cartCouponInput').value = code;
+            applyCoupon();
+        }
+
+        function applyCoupon() {
+            const code = document.getElementById('cartCouponInput').value.toUpperCase();
+            const msg = document.getElementById('cartCouponMsg');
+            msg.classList.remove('hidden', 'text-green-500', 'text-red-500');
+            
+            if (code === 'LOUD100' || code === 'FREE') {
+                appliedCoupon = code;
+                msg.innerText = `COUPON ${code} APPLIED! 🚀`;
+                msg.classList.add('text-green-500');
+            } else {
+                appliedCoupon = null;
+                msg.innerText = "INVALID CODE";
+                msg.classList.add('text-red-500');
+            }
+            msg.classList.remove('hidden');
+            renderCart();
         }
 
         function upd(id, d) { cart[id] = Math.max(0, (cart[id] || 0) + d); localStorage.setItem('cart', JSON.stringify(cart)); render(); if(document.getElementById('sideCart').classList.contains('open')) renderCart(); }
@@ -500,39 +595,17 @@
         }
         function renderCheckoutAddrs() {
             document.getElementById('checkoutAddrList').innerHTML = addresses.map((a,i) => `<div onclick="selectAddr(${i})" class="p-6 border-2 ${selAddrIdx===i?'border-black bg-black text-white':'border-gray-100'} rounded-3xl cursor-pointer hover:border-black transition-all"><h5 class="meta-text ${selAddrIdx===i?'!text-white':''} mb-2">Saved Spot</h5><p class="text-sm font-bold">${a.flat}, Floor ${a.floor}, ${a.street}</p></div>`).join('') || '<p class="meta-text py-10 text-center">No addresses found.</p>';
-            document.getElementById('proceedToCouponBtn').classList.toggle('opacity-30', selAddrIdx===-1); document.getElementById('proceedToCouponBtn').classList.toggle('pointer-events-none', selAddrIdx===-1);
-        }
-        function selectAddr(i) { selAddrIdx = i; renderCheckoutAddrs(); }
-        function showCouponView() {
-            document.getElementById('shippingView').classList.add('hidden');
-            document.getElementById('couponView').classList.remove('hidden');
-            document.getElementById('checkoutTitle').innerText = "Offers";
-        }
-
-        let appliedCoupon = null;
-        function setCoupon(code) {
-            document.getElementById('couponInput').value = code;
-            applyCoupon();
-        }
-
-        function applyCoupon() {
-            const code = document.getElementById('couponInput').value.toUpperCase();
-            const msg = document.getElementById('couponMsg');
-            msg.classList.remove('hidden', 'text-green-500', 'text-red-500');
-            
-            if (code === 'LOUD100' || code === 'FREE') {
-                appliedCoupon = code;
-                msg.innerText = `COUPON ${code} APPLIED! 🚀`;
-                msg.classList.add('show', 'text-green-500');
-            } else {
-                appliedCoupon = null;
-                msg.innerText = "INVALID COUPON CODE";
-                msg.classList.add('show', 'text-red-500');
+            const btn = `<button onclick="showPayment()" id="proceedToPayBtn" class="w-full bg-black text-white btn-pro btn-text ${selAddrIdx===-1?'opacity-30 pointer-events-none':''}">Proceed to Payment</button>`;
+            if(!document.getElementById('proceedToPayBtn')) document.getElementById('shippingView').insertAdjacentHTML('beforeend', btn);
+            else {
+                document.getElementById('proceedToPayBtn').classList.toggle('opacity-30', selAddrIdx===-1);
+                document.getElementById('proceedToPayBtn').classList.toggle('pointer-events-none', selAddrIdx===-1);
             }
         }
-
+        function selectAddr(i) { selAddrIdx = i; renderCheckoutAddrs(); }
+        
         function showPayment() { 
-            document.getElementById('couponView').classList.add('hidden'); 
+            document.getElementById('shippingView').classList.add('hidden'); 
             document.getElementById('paymentView').classList.remove('hidden'); 
             document.getElementById('checkoutTitle').innerText = "Payment"; 
         }
@@ -552,7 +625,7 @@
             if (appliedCoupon === 'LOUD100') couponDiscount = 100;
             if (appliedCoupon === 'FREE') deliveryFee = 0;
 
-            const total = (sub - tierDiscount - couponDiscount) + deliveryFee;
+            const total = Math.max(0, (sub - tierDiscount - couponDiscount) + deliveryFee);
 
             const orderItems = ids.map(i => { const p = DATA.find(x=>x.id==i); return { id: i, name: p.name, qty: cart[i], price: p.d }; });
             const selAddr = addresses[selAddrIdx];
@@ -563,15 +636,15 @@
                 items: orderItems, 
                 address: selAddr, 
                 utr: document.getElementById('utr').value || 'UPI-PENDING',
-                discount_applied: discountAmt,
-                discount_tier: discountPct + "%"
+                discount_applied: tierDiscount + couponDiscount,
+                discount_tier: discountPct + "%" + (appliedCoupon ? ` + ${appliedCoupon}` : '')
             };
 
             const { data, error } = await _supabase.from('orders').insert([orderData]).select();
             if (error) return alert("Order failed to sync.");
 
             const newOrder = data[0]; history.unshift(newOrder); localStorage.setItem('hist', JSON.stringify(history));
-            cart = {}; localStorage.setItem('cart', '{}'); selAddrIdx = -1; render(); closeAll();
+            cart = {}; localStorage.setItem('cart', '{}'); selAddrIdx = -1; appliedCoupon = null; render(); closeAll();
             document.getElementById('modal').classList.remove('hidden');
             document.getElementById('modalContent').innerHTML = `
                 <div class="w-full max-w-[600px] bg-white p-12 rounded-3xl text-center shadow-2xl">
@@ -579,7 +652,7 @@
                         <span class="material-symbols-outlined text-5xl">verified</span>
                     </div>
                     <h2 class="h1 italic mb-2">SUCCESS</h2>
-                    <p class="meta-text mb-4 text-green-500 font-black">YOU SAVED ₹${discountAmt}!</p>
+                    <p class="meta-text mb-4 text-green-500 font-black">YOU SAVED ₹${tierDiscount + couponDiscount}!</p>
                     <p class="meta-text mb-10">Order #ORD-${newOrder.id} confirmed</p>
                     <div class="flex justify-between mb-16 mt-16 px-4">
                         <div class="tracking-step active"><div class="step-dot"><span class="material-symbols-outlined">receipt_long</span></div><span class="meta-text !text-[8px] font-black">Ordered</span></div>
