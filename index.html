@@ -196,12 +196,20 @@
         let history = JSON.parse(localStorage.getItem('hist') || '[]');
         let selAddrIdx = -1; let cat = "All";
 
-        function toggleCart(o) { document.getElementById('sideCart').classList.toggle('open', o); document.getElementById('overlay').style.opacity = o?'1':'0'; document.getElementById('overlay').style.pointerEvents = o?'auto':'none'; if(o) renderCart(); }
-        function openAccount() { document.getElementById('sideAccount').classList.add('open'); document.getElementById('overlay').style.opacity='1'; document.getElementById('overlay').style.pointerEvents='auto'; renderAccount(); }
-        function closeAccount() { document.getElementById('sideAccount').classList.remove('open'); document.getElementById('overlay').style.opacity='0'; document.getElementById('overlay').style.pointerEvents='none'; }
-        function closeAll() { toggleCart(false); closeAccount(); document.getElementById('pdp').classList.remove('open'); document.getElementById('checkoutSheet').classList.remove('open'); document.getElementById('overlay').style.opacity='0'; }
-        function closePDP() { document.getElementById('pdp').classList.remove('open'); document.getElementById('overlay').style.opacity='0'; }
-        function closeCheckout() { document.getElementById('checkoutSheet').classList.remove('open'); document.getElementById('overlay').style.opacity='0'; }
+        function toggleOverlay(o) {
+            const ov = document.getElementById('overlay');
+            ov.style.opacity = o ? '1' : '0';
+            ov.style.pointerEvents = o ? 'auto' : 'none';
+        }
+        function toggleCart(o) { document.getElementById('sideCart').classList.toggle('open', o); toggleOverlay(o); if(o) renderCart(); }
+        function openAccount() { document.getElementById('sideAccount').classList.add('open'); toggleOverlay(true); renderAccount(); }
+        function closeAccount() { document.getElementById('sideAccount').classList.remove('open'); toggleOverlay(false); }
+        function closeAll() { 
+            document.querySelectorAll('#sideCart, #sideAccount, #pdp, #checkoutSheet').forEach(el => el.classList.remove('open'));
+            toggleOverlay(false);
+        }
+        function closePDP() { document.getElementById('pdp').classList.remove('open'); toggleOverlay(false); }
+        function closeCheckout() { document.getElementById('checkoutSheet').classList.remove('open'); toggleOverlay(false); }
 
         function sendOTP() {
             const phone = document.getElementById('loginPhone').value;
@@ -301,7 +309,7 @@
             const p = DATA.find(x=>x.id==id); const n = cart[id] || 0;
             document.getElementById('pdpContent').innerHTML = `<div class="p-8 lg:p-12"><div class="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory mb-12">${p.img.map(img => `<div class="min-w-full aspect-square bg-gray-50 rounded-3xl snap-center flex items-center justify-center p-20"><img src="${img}" class="w-80 h-80"/></div>`).join('')}</div><div class="flex justify-between items-start mb-8"><div><span class="bg-green-50 text-green-600 text-[10px] font-black px-4 py-1.5 rounded-full uppercase mb-4 inline-block">${p.avail}</span><h2 class="h1 !italic !text-3xl">${p.name}</h2></div><div class="text-right"><p class="text-gray-400 line-through text-sm">₹${p.p}</p><p class="h1 italic !text-4xl">₹${p.d}</p></div></div><p class="meta-text mb-10">${p.w} • #WAREHOUSE-${p.id}</p><p class="text-gray-500 mb-16">${p.desc}</p></div>`;
             document.getElementById('pdpFooter').innerHTML = `<div class="h3 italic">₹${p.d}</div><div id="pdpAction">${n===0 ? `<button onclick="upd(${p.id},1); openPDP(${p.id});" class="bg-black text-white btn-pro btn-text">Add to Cart</button>` : `<div class="stepper !w-[180px] !h-[64px]"><div class="step-btn text-3xl" onclick="upd(${p.id},-1); openPDP(${p.id});">-</div><div class="font-black text-2xl">${n}</div><div class="step-btn text-3xl" onclick="upd(${p.id},1); openPDP(${p.id});">+</div></div>`}</div>`;
-            document.getElementById('pdp').classList.add('open'); document.getElementById('overlay').style.opacity='1';
+            document.getElementById('pdp').classList.add('open'); toggleOverlay(true);
         }
 
         function renderCart() {
@@ -328,7 +336,7 @@
         function startCheckout() {
             if(!user) { document.getElementById('checkoutSheet').dataset.pending = "true"; toggleCart(false); openAccount(); return; }
             document.getElementById('checkoutSheet').dataset.pending = "false";
-            toggleCart(false); document.getElementById('checkoutSheet').classList.add('open'); document.getElementById('overlay').style.opacity='1'; renderCheckoutAddrs();
+            toggleCart(false); document.getElementById('checkoutSheet').classList.add('open'); toggleOverlay(true); renderCheckoutAddrs();
         }
         function renderCheckoutAddrs() {
             document.getElementById('checkoutAddrList').innerHTML = addresses.map((a,i) => `<div onclick="selectAddr(${i})" class="p-6 border-2 ${selAddrIdx===i?'border-black bg-black text-white':'border-gray-100'} rounded-3xl cursor-pointer hover:border-black transition-all"><h5 class="meta-text ${selAddrIdx===i?'!text-white':''} mb-2">Saved Spot</h5><p class="text-sm font-bold">${a.flat}, Floor ${a.floor}, ${a.street}</p></div>`).join('') || '<p class="meta-text py-10 text-center">No addresses found.</p>';
