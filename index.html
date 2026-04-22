@@ -132,38 +132,17 @@
             <button onclick="toggleCart(false)" class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center font-black">×</button>
         </div>
         
-        <div id="deliveryPromo" class="px-8 lg:px-10 py-8 bg-zinc-950 border-b border-white/5 hidden shadow-inner">
-            <div class="flex justify-between items-center mb-4">
-                <p id="promoText" class="meta-text !text-white !text-[10px] font-black tracking-widest uppercase"></p>
+        <div id="deliveryPromo" class="px-8 lg:px-10 py-6 bg-zinc-950 border-b border-white/5 hidden shadow-inner">
+            <div class="flex justify-between items-center mb-3">
+                <p id="promoText" class="meta-text !text-white !text-[9px] font-black tracking-widest uppercase"></p>
+                <span id="savingsBadge" class="bg-green-500 text-black text-[8px] font-black px-2 py-1 rounded-md hidden">SAVING ₹0</span>
             </div>
-            <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden p-[2px]">
-                <div id="promoBar" class="h-full rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(255,255,255,0.3)]" style="width: 0%"></div>
+            <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                <div id="promoBar" class="h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(255,255,255,0.2)]" style="width: 0%"></div>
             </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-8 lg:p-10 no-scrollbar" id="cartBody"></div>
-
-        <!-- COUPON SECTION IN CART -->
-        <div id="cartCouponSection" class="p-8 lg:p-10 bg-white border-t border-gray-50 space-y-6 hidden">
-            <div class="flex justify-between items-center"><h5 class="text-[9px] font-black uppercase text-gray-400 tracking-widest">Coupons & Offers</h5></div>
-            <div class="bg-gray-50 p-5 rounded-3xl border border-gray-100">
-                <div class="flex gap-4">
-                    <input id="cartCouponInput" type="text" placeholder="Enter Code" class="flex-1 !bg-white !p-4 !pl-6 rounded-2xl font-black uppercase text-xs border-none outline-none">
-                    <button onclick="applyCoupon()" class="bg-black text-white px-6 rounded-2xl btn-text !text-[9px]">Apply</button>
-                </div>
-                <p id="cartCouponMsg" class="text-[8px] font-black uppercase mt-3 hidden"></p>
-            </div>
-            <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-                <div onclick="setCoupon('LOUD100')" class="min-w-[140px] p-4 bg-orange-50 border border-dashed border-orange-200 rounded-2xl cursor-pointer">
-                    <p class="font-black text-[10px] uppercase text-orange-600">LOUD100</p>
-                    <p class="text-[8px] text-orange-400 uppercase">₹100 Off</p>
-                </div>
-                <div onclick="setCoupon('FREE')" class="min-w-[140px] p-4 bg-green-50 border border-dashed border-green-200 rounded-2xl cursor-pointer">
-                    <p class="font-black text-[10px] uppercase text-green-600">FREE</p>
-                    <p class="text-[8px] text-green-400 uppercase">No Ship Fee</p>
-                </div>
-            </div>
-        </div>
+        <div class="flex-1 overflow-y-auto no-scrollbar" id="cartBody"></div>
 
         <div id="cartFooter" class="p-8 lg:p-10 bg-gray-50 border-t border-gray-100 space-y-8 hidden">
             <div id="bill" class="space-y-4"></div>
@@ -504,19 +483,12 @@
                 document.getElementById('cartBody').innerHTML = `<div class="h-full flex flex-col items-center justify-center h3 opacity-10">Empty Cart</div>`; 
                 document.getElementById('cartFooter').classList.add('hidden'); 
                 document.getElementById('deliveryPromo').classList.add('hidden'); 
-                document.getElementById('cartCouponSection').classList.add('hidden');
                 return; 
             }
             
             document.getElementById('cartFooter').classList.remove('hidden'); 
             document.getElementById('deliveryPromo').classList.remove('hidden');
-            document.getElementById('cartCouponSection').classList.remove('hidden');
             
-            document.getElementById('cartBody').innerHTML = ids.map(i => { 
-                const p = DATA.find(x=>x.id==i); 
-                return `<div class="flex justify-between items-center mb-8"><div><h4 class="h3 !text-lg uppercase line-clamp-1">${p.name}</h4><p class="meta-text">₹${p.d}</p></div><div class="stepper"><div class="step-btn" onclick="upd(${i},-1)">-</div><div class="font-black">${cart[i]}</div><div class="step-btn" onclick="upd(${i},1)">+</div></div></div>` 
-            }).join('');
-
             const sub = ids.reduce((s,i)=>s+(DATA.find(x=>x.id==i).d*cart[i]), 0);
             
             // TIERED DISCOUNT
@@ -533,7 +505,39 @@
             if (appliedCoupon === 'LOUD100') couponDiscount = 100;
             if (appliedCoupon === 'FREE') deliveryFee = 0;
 
+            const totalSavings = tierDiscount + couponDiscount;
             const total = (sub - tierDiscount - couponDiscount) + deliveryFee;
+
+            // RENDER PRODUCTS + COUPONS IN ONE SCROLL
+            document.getElementById('cartBody').innerHTML = `
+                <div class="p-8 lg:p-10 space-y-8">
+                    ${ids.map(i => { 
+                        const p = DATA.find(x=>x.id==i); 
+                        return `<div class="flex justify-between items-center"><div><h4 class="h3 !text-lg uppercase line-clamp-1">${p.name}</h4><p class="meta-text">₹${p.d}</p></div><div class="stepper"><div class="step-btn" onclick="upd(${i},-1)">-</div><div class="font-black">${cart[i]}</div><div class="step-btn" onclick="upd(${i},1)">+</div></div></div>` 
+                    }).join('')}
+                    
+                    <div class="pt-10 border-t border-gray-50 space-y-6">
+                        <div class="flex justify-between items-center"><h5 class="text-[9px] font-black uppercase text-gray-400 tracking-widest">Offers For You</h5></div>
+                        <div class="bg-gray-50 p-5 rounded-3xl border border-gray-100">
+                            <div class="flex gap-4">
+                                <input id="cartCouponInput" type="text" placeholder="Enter Code" class="flex-1 !bg-white !p-4 !pl-6 rounded-2xl font-black uppercase text-xs border-none outline-none">
+                                <button onclick="applyCoupon()" class="bg-black text-white px-6 rounded-2xl btn-text !text-[9px]">Apply</button>
+                            </div>
+                            <p id="cartCouponMsg" class="text-[8px] font-black uppercase mt-3 hidden"></p>
+                        </div>
+                        <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                            <div onclick="setCoupon('LOUD100')" class="min-w-[140px] p-4 bg-orange-50 border border-dashed border-orange-200 rounded-2xl cursor-pointer">
+                                <p class="font-black text-[10px] uppercase text-orange-600">LOUD100</p>
+                                <p class="text-[8px] text-orange-400 uppercase">₹100 Off</p>
+                            </div>
+                            <div onclick="setCoupon('FREE')" class="min-w-[140px] p-4 bg-green-50 border border-dashed border-green-200 rounded-2xl cursor-pointer">
+                                <p class="font-black text-[10px] uppercase text-green-600">FREE</p>
+                                <p class="text-[8px] text-green-400 uppercase">No Ship Fee</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
 
             // Update Progress Bar
             const progress = sub >= 2000 ? 100 : (sub / 2000) * 100;
@@ -542,6 +546,13 @@
 
             let promoMsg = sub >= 2000 ? "🎉 MAXIMUM 50% OFF UNLOCKED!" : `ADD ₹${nextTier - sub} FOR ${discountPct + 10}% OFF!`;
             document.getElementById('promoText').innerText = promoMsg;
+
+            // Update Savings Badge
+            const badge = document.getElementById('savingsBadge');
+            if (totalSavings > 0) {
+                badge.innerText = `SAVING ₹${totalSavings}`;
+                badge.classList.remove('hidden');
+            } else { badge.classList.add('hidden'); }
 
             document.getElementById('bill').innerHTML = `
                 <div class="flex justify-between text-[10px] font-black uppercase text-gray-400"><span>Items Total</span><span>₹${sub}</span></div>
