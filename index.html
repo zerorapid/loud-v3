@@ -124,10 +124,26 @@
     
     <!-- SIDECART -->
     <div id="sideCart" class="fixed top-0 right-0 h-full w-full md:w-[500px] bg-white flex flex-col shadow-2xl">
-        <div class="p-8 lg:p-10 border-b border-gray-100 flex items-center justify-between"><h3 class="h2 italic">Cart</h3><button onclick="toggleCart(false)" class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center font-black">×</button></div>
-        <div id="deliveryPromo" class="px-8 lg:px-10 py-6 bg-zinc-50 border-b border-gray-100 hidden"><div class="flex justify-between items-center mb-3"><p id="promoText" class="meta-text !text-black !text-[9px] font-black"></p></div><div class="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden"><div id="promoBar" class="h-full bg-green-500 transition-all duration-1000" style="width: 0%"></div></div></div>
+        <div class="p-8 lg:p-10 border-b border-gray-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <h3 class="h2 italic">Cart</h3>
+                <span class="bg-black text-white text-[8px] font-black px-2 py-1 rounded-md uppercase">V2.0</span>
+            </div>
+            <button onclick="toggleCart(false)" class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center font-black">×</button>
+        </div>
+        <div id="deliveryPromo" class="px-8 lg:px-10 py-8 bg-zinc-950 border-b border-white/5 hidden shadow-inner">
+            <div class="flex justify-between items-center mb-4">
+                <p id="promoText" class="meta-text !text-white !text-[10px] font-black tracking-widest uppercase"></p>
+            </div>
+            <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden p-[2px]">
+                <div id="promoBar" class="h-full rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(255,255,255,0.3)]" style="width: 0%"></div>
+            </div>
+        </div>
         <div class="flex-1 overflow-y-auto p-8 lg:p-10 no-scrollbar" id="cartBody"></div>
-        <div id="cartFooter" class="p-8 lg:p-10 bg-gray-50 border-t border-gray-100 space-y-8 hidden"><div id="bill" class="h2 italic"></div><button onclick="startCheckout()" class="w-full bg-black text-white btn-pro font-black uppercase text-[12px] tracking-widest">Proceed to Ship</button></div>
+        <div id="cartFooter" class="p-8 lg:p-10 bg-gray-50 border-t border-gray-100 space-y-8 hidden">
+            <div id="bill" class="space-y-4"></div>
+            <button onclick="startCheckout()" class="w-full bg-black text-white btn-pro font-black uppercase text-[12px] tracking-widest shadow-2xl">Proceed to Ship</button>
+        </div>
     </div>
 
     <!-- PDP -->
