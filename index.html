@@ -181,8 +181,8 @@
                     <p class="meta-text !text-black !text-[10px] mb-2">Scan & Pay via UPI</p>
                     <p class="text-[12px] font-black tracking-widest opacity-60">9441276604@ybl</p>
                 </div>
-                <div class="field-box"><span class="material-symbols-outlined field-icon">receipt_long</span><input id="utr" placeholder="Enter Transaction UTR" required minlength="6" oninput="this.value = this.value.toUpperCase()"></div>
-                <button onclick="completeOrder()" class="w-full bg-black text-white btn-pro btn-text">Verify & Confirm</button>
+                <div class="field-box"><span class="material-symbols-outlined field-icon">receipt_long</span><input id="utr" placeholder="12-Digit Transaction UTR" required maxlength="12" oninput="validateUTR(this)"></div>
+                <button onclick="completeOrder()" id="finalOrderBtn" class="w-full bg-black text-white btn-pro btn-text opacity-30 pointer-events-none transition-all">Verify & Confirm</button>
             </div>
         </div>
     </div>
@@ -705,6 +705,16 @@
             
             // Auto-trigger after 2 seconds for frictionless flow
             setTimeout(sendWA, 2500);
+        }
+
+        function validateUTR(el) {
+            el.value = el.value.replace(/[^0-9]/g, '');
+            const btn = document.getElementById('finalOrderBtn');
+            if (el.value.length === 12) {
+                btn.classList.remove('opacity-30', 'pointer-events-none');
+            } else {
+                btn.classList.add('opacity-30', 'pointer-events-none');
+            }
         }
 
         function sync() { const n = Object.values(cart).reduce((a,b)=>a+b, 0); document.getElementById('badge').innerText = n; document.getElementById('badge').classList.toggle('hidden', n===0); }
