@@ -179,7 +179,8 @@
                     w: p.weight >= 1000 ? (p.weight / 1000) + 'kg' : p.weight + 'g',
                     p: p.price,
                     d: p.discount_price,
-                    avail: "In Stock",
+                    avail: p.stock === 0 ? "Out of Stock" : (p.stock < 5 ? "Limited Stock" : "In Stock"),
+                    stock: p.stock ?? 25,
                     desc: p.description,
                     img: [p.image_url || 'https://cdn-icons-png.flaticon.com/512/706/706164.png']
                 }));
@@ -309,11 +310,17 @@
             } else {
                 document.getElementById('list').innerHTML = filtered.map(p => {
                     const n = cart[p.id] || 0;
-                    return `<div class="bg-white border border-gray-100 p-6 lg:p-8 rounded-3xl flex flex-col transition-all active:scale-95" onclick="openPDP(${p.id})">
-                        <div class="aspect-square bg-gray-50 rounded-2xl mb-6 flex items-center justify-center p-6"><img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/706/706164.png'" class="w-full object-contain max-h-full"/></div>
+                    const isOut = p.stock === 0;
+                    const isLim = p.stock > 0 && p.stock < 5;
+                    return `<div class="bg-white border border-gray-100 p-6 lg:p-8 rounded-3xl flex flex-col transition-all ${isOut ? 'opacity-40 grayscale pointer-events-none' : 'active:scale-95 cursor-pointer'}" onclick="openPDP(${p.id})">
+                        <div class="relative aspect-square bg-gray-50 rounded-2xl mb-6 flex items-center justify-center p-6">
+                            <img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/706/706164.png'" class="w-full object-contain max-h-full"/>
+                            ${isOut ? `<span class="absolute top-4 right-4 bg-black text-white text-[8px] font-black px-3 py-1.5 rounded-full uppercase">Sold Out</span>` : ''}
+                            ${isLim ? `<span class="absolute top-4 right-4 bg-orange-500 text-white text-[8px] font-black px-3 py-1.5 rounded-full uppercase">Only ${p.stock} Left</span>` : ''}
+                        </div>
                         <h3 class="h3 !text-sm lg:!text-lg mb-1 line-clamp-1">${p.name}</h3><p class="meta-text mb-8">${p.w}</p>
                         <div class="flex items-center justify-between mt-auto" onclick="event.stopPropagation()"><div class="flex flex-col"><span class="text-[10px] text-gray-300 line-through">₹${p.p}</span><span class="h3 !text-sm lg:!text-lg">₹${p.d}</span></div>
-                        <div>${n === 0 ? `<button onclick="upd(${p.id},1)" class="bg-black text-white px-7 py-2.5 rounded-full btn-text !text-[11px]">Add</button>` : `<div class="stepper !w-[85px] lg:!w-[105px] !h-[40px] lg:!h-[48px]"><div class="step-btn" onclick="upd(${p.id},-1)">-</div><div class="font-black text-[12px]">${n}</div><div class="step-btn" onclick="upd(${p.id},1)">+</div></div>`}</div></div></div>`
+                        <div>${n === 0 ? `<button onclick="upd(${p.id},1)" class="bg-black text-white px-7 py-2.5 rounded-full btn-text !text-[11px]" ${isOut ? 'disabled' : ''}>${isOut ? 'N/A' : 'Add'}</button>` : `<div class="stepper !w-[85px] lg:!w-[105px] !h-[40px] lg:!h-[48px]"><div class="step-btn" onclick="upd(${p.id},-1)">-</div><div class="font-black text-[12px]">${n}</div><div class="step-btn" onclick="upd(${p.id},1)">+</div></div>`}</div></div></div>`
                 }).join('');
             }
 
@@ -321,7 +328,7 @@
                 const n = cart[p.id] || 0;
                 return `<div class="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-3xl group cursor-pointer" onclick="openPDP(${p.id})">
                     <img src="${p.img ? p.img[0] : 'https://cdn-icons-png.flaticon.com/512/706/706164.png'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/706/706164.png'" class="w-14 h-14 object-contain"/><div class="flex-1"><h5 class="h3 !text-sm uppercase line-clamp-1">${p.name}</h5><p class="meta-text !text-[10px]">₹${p.d}</p></div>
-                    <div onclick="event.stopPropagation()">${n === 0 ? `<button onclick="upd(${p.id},1)" class="bg-black text-white text-[10px] font-black px-5 py-2.5 rounded-full">Add</button>` : `<div class="stepper !w-[80px] !h-[36px]"><div class="step-btn" onclick="upd(${p.id},-1)">-</div><div class="text-[11px] font-black">${n}</div><div class="step-btn" onclick="upd(${p.id},1)">+</div></div>`}</div></div>`
+                    <div onclick="event.stopPropagation()">${n === 0 ? `<button onclick="upd(${p.id},1)" class="bg-black text-white text-[10px] font-black px-5 py-2.5 rounded-full" ${p.stock === 0 ? 'disabled' : ''}>Add</button>` : `<div class="stepper !w-[80px] !h-[36px]"><div class="step-btn" onclick="upd(${p.id},-1)">-</div><div class="text-[11px] font-black">${n}</div><div class="step-btn" onclick="upd(${p.id},1)">+</div></div>`}</div></div>`
             }).join('');
             renderCategories();
             sync();
@@ -352,8 +359,10 @@
 
         function openPDP(id) {
             const p = DATA.find(x=>x.id==id); const n = cart[id] || 0;
-            document.getElementById('pdpContent').innerHTML = `<div class="p-8 lg:p-12"><div class="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory mb-12">${p.img.map(img => `<div class="min-w-full aspect-square bg-gray-50 rounded-3xl snap-center flex items-center justify-center p-12 lg:p-20"><img src="${img}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/706/706164.png'" class="w-full h-full object-contain"/></div>`).join('')}</div><div class="flex justify-between items-start mb-8"><div><span class="bg-green-50 text-green-600 text-[10px] font-black px-4 py-1.5 rounded-full uppercase mb-4 inline-block">${p.avail}</span><h2 class="h1 !italic !text-3xl">${p.name}</h2></div><div class="text-right"><p class="text-gray-400 line-through text-sm">₹${p.p}</p><p class="h1 italic !text-4xl">₹${p.d}</p></div></div><p class="meta-text mb-10">${p.w} • #WAREHOUSE-${p.id}</p><p class="text-gray-500 mb-16">${p.desc}</p></div>`;
-            document.getElementById('pdpFooter').innerHTML = `<div class="h3 italic">₹${p.d}</div><div id="pdpAction">${n===0 ? `<button onclick="upd(${p.id},1); openPDP(${p.id});" class="bg-black text-white btn-pro btn-text">Add to Cart</button>` : `<div class="stepper !w-[180px] !h-[64px]"><div class="step-btn text-3xl" onclick="upd(${p.id},-1); openPDP(${p.id});">-</div><div class="font-black text-2xl">${n}</div><div class="step-btn text-3xl" onclick="upd(${p.id},1); openPDP(${p.id});">+</div></div>`}</div>`;
+            const related = DATA.filter(x => x.cat === p.cat && x.id !== p.id).slice(0, 4);
+            
+            document.getElementById('pdpContent').innerHTML = `<div class="p-8 lg:p-12"><div class="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory mb-12">${p.img.map(img => `<div class="min-w-full aspect-square bg-gray-50 rounded-3xl snap-center flex items-center justify-center p-12 lg:p-20"><img src="${img}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/706/706164.png'" class="w-full h-full object-contain"/></div>`).join('')}</div><div class="flex justify-between items-start mb-8"><div><span class="bg-green-50 text-green-600 text-[10px] font-black px-4 py-1.5 rounded-full uppercase mb-4 inline-block">${p.avail}</span><h2 class="h1 !italic !text-3xl">${p.name}</h2></div><div class="text-right"><p class="text-gray-400 line-through text-sm">₹${p.p}</p><p class="h1 italic !text-4xl">₹${p.d}</p></div></div><p class="meta-text mb-10">${p.w} • #WAREHOUSE-${p.id}</p><p class="text-gray-500 mb-16">${p.desc}</p><div class="mt-20"><h4 class="meta-text !text-black font-black mb-8">You Might Also Like</h4><div class="grid grid-cols-2 gap-4">${related.map(r => `<div class="p-4 bg-gray-50 rounded-3xl border border-gray-100" onclick="openPDP(${r.id})"><img src="${r.img[0]}" class="w-20 h-20 object-contain mx-auto mb-4 grayscale"/><p class="h3 !text-[11px] uppercase text-center line-clamp-1">${r.name}</p></div>`).join('')}</div></div></div>`;
+            document.getElementById('pdpFooter').innerHTML = `<div class="h3 italic">₹${p.d}</div><div id="pdpAction">${n===0 ? `<button onclick="upd(${p.id},1); openPDP(${p.id});" class="bg-black text-white btn-pro btn-text" ${p.stock === 0 ? 'disabled' : ''}>Add to Cart</button>` : `<div class="stepper !w-[180px] !h-[64px]"><div class="step-btn text-3xl" onclick="upd(${p.id},-1); openPDP(${p.id});">-</div><div class="font-black text-2xl">${n}</div><div class="step-btn text-3xl" onclick="upd(${p.id},1); openPDP(${p.id});">+</div></div>`}</div>`;
             document.getElementById('pdp').classList.add('open'); toggleOverlay(true);
         }
 
