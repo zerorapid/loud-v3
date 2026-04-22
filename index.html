@@ -476,8 +476,7 @@
             document.getElementById('pdp').classList.add('open'); toggleOverlay(true);
         }
 
-        let appliedCoupon = null;
-        function renderCart() {
+           function renderCart() {
             const ids = Object.keys(cart).filter(i=>cart[i]>0);
             if(ids.length===0) { 
                 document.getElementById('cartBody').innerHTML = `<div class="h-full flex flex-col items-center justify-center h3 opacity-10">Empty Cart</div>`; 
@@ -491,24 +490,24 @@
             
             const sub = ids.reduce((s,i)=>s+(DATA.find(x=>x.id==i).d*cart[i]), 0);
             
-            // TIERED DISCOUNT
+            // COUPON AVAILABILITY
+            const can40 = sub >= 1000;
+            const can50 = sub >= 2000;
+            
+            // AUTO-SELECT BEST COUPON
+            if (can50 && (!appliedCoupon || appliedCoupon === 'LOUD40' || appliedCoupon === 'LOUD30')) appliedCoupon = 'LOUD50';
+            else if (can40 && (!appliedCoupon || appliedCoupon === 'LOUD30')) appliedCoupon = 'LOUD40';
+            else if (!appliedCoupon) appliedCoupon = 'LOUD30';
+
             let discountPct = 30;
-            let nextTier = 1000;
-            if (sub >= 2000) discountPct = 50;
-            else if (sub >= 1000) { discountPct = 40; nextTier = 2000; }
+            if (appliedCoupon === 'LOUD40') discountPct = 40;
+            if (appliedCoupon === 'LOUD50') discountPct = 50;
             
-            const tierDiscount = Math.floor(sub * (discountPct / 100));
-            
-            // COUPON DISCOUNT
+            const totalSavings = Math.floor(sub * (discountPct / 100));
             let deliveryFee = sub >= 199 ? 0 : 30;
-            let couponDiscount = 0;
-            if (appliedCoupon === 'LOUD100') couponDiscount = 100;
-            if (appliedCoupon === 'FREE') deliveryFee = 0;
+            const total = (sub - totalSavings) + deliveryFee;
 
-            const totalSavings = tierDiscount + couponDiscount;
-            const total = (sub - tierDiscount - couponDiscount) + deliveryFee;
-
-            // RENDER PRODUCTS + COUPONS IN ONE SCROLL
+            // RENDER PRODUCTS + DYNAMIC COUPON CARDS
             document.getElementById('cartBody').innerHTML = `
                 <div class="p-8 lg:p-10 space-y-8">
                     ${ids.map(i => { 
@@ -518,21 +517,18 @@
                     
                     <div class="pt-10 border-t border-gray-50 space-y-6">
                         <div class="flex justify-between items-center"><h5 class="text-[9px] font-black uppercase text-gray-400 tracking-widest">Offers For You</h5></div>
-                        <div class="bg-gray-50 p-5 rounded-3xl border border-gray-100">
-                            <div class="flex gap-4">
-                                <input id="cartCouponInput" type="text" placeholder="Enter Code" class="flex-1 !bg-white !p-4 !pl-6 rounded-2xl font-black uppercase text-xs border-none outline-none">
-                                <button onclick="applyCoupon()" class="bg-black text-white px-6 rounded-2xl btn-text !text-[9px]">Apply</button>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div onclick="setCoupon('LOUD30')" class="p-6 border-2 ${appliedCoupon==='LOUD30'?'border-black bg-black text-white':'border-dashed border-gray-200'} rounded-[32px] cursor-pointer transition-all">
+                                <div class="flex justify-between items-center"><p class="font-black text-sm uppercase">LOUD30</p><span class="text-[10px] font-black uppercase">30% OFF</span></div>
+                                <p class="text-[9px] ${appliedCoupon==='LOUD30'?'text-white/40':'text-gray-400'} uppercase mt-1">Active on all orders</p>
                             </div>
-                            <p id="cartCouponMsg" class="text-[8px] font-black uppercase mt-3 hidden"></p>
-                        </div>
-                        <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-                            <div onclick="setCoupon('LOUD100')" class="min-w-[140px] p-4 bg-orange-50 border border-dashed border-orange-200 rounded-2xl cursor-pointer">
-                                <p class="font-black text-[10px] uppercase text-orange-600">LOUD100</p>
-                                <p class="text-[8px] text-orange-400 uppercase">₹100 Off</p>
+                            <div onclick="${can40?'setCoupon(\'LOUD40\')':''}" class="p-6 border-2 ${appliedCoupon==='LOUD40'?'border-black bg-black text-white':'border-dashed border-gray-200'} rounded-[32px] cursor-pointer transition-all ${!can40?'opacity-30 grayscale':''}">
+                                <div class="flex justify-between items-center"><p class="font-black text-sm uppercase">LOUD40</p><span class="text-[10px] font-black uppercase">${can40?'40% OFF':'Locked'}</span></div>
+                                <p class="text-[9px] ${appliedCoupon==='LOUD40'?'text-white/40':'text-gray-400'} uppercase mt-1">${can40?'Unlocked for you!':'Spend ₹'+(1000-sub)+' more to unlock'}</p>
                             </div>
-                            <div onclick="setCoupon('FREE')" class="min-w-[140px] p-4 bg-green-50 border border-dashed border-green-200 rounded-2xl cursor-pointer">
-                                <p class="font-black text-[10px] uppercase text-green-600">FREE</p>
-                                <p class="text-[8px] text-green-400 uppercase">No Ship Fee</p>
+                            <div onclick="${can50?'setCoupon(\'LOUD50\')':''}" class="p-6 border-2 ${appliedCoupon==='LOUD50'?'border-black bg-black text-white':'border-dashed border-gray-200'} rounded-[32px] cursor-pointer transition-all ${!can50?'opacity-30 grayscale':''}">
+                                <div class="flex justify-between items-center"><p class="font-black text-sm uppercase">LOUD50</p><span class="text-[10px] font-black uppercase">${can50?'50% OFF':'Locked'}</span></div>
+                                <p class="text-[9px] ${appliedCoupon==='LOUD50'?'text-white/40':'text-gray-400'} uppercase mt-1">${can50?'Unlocked for you!':'Spend ₹'+(2000-sub)+' more to unlock'}</p>
                             </div>
                         </div>
                     </div>
@@ -543,8 +539,7 @@
             const progress = sub >= 2000 ? 100 : (sub / 2000) * 100;
             document.getElementById('promoBar').style.width = progress + "%";
             document.getElementById('promoBar').style.background = sub >= 2000 ? '#22c55e' : (sub >= 1000 ? '#3b82f6' : '#f97316');
-
-            let promoMsg = sub >= 2000 ? "🎉 MAXIMUM 50% OFF UNLOCKED!" : `ADD ₹${nextTier - sub} FOR ${discountPct + 10}% OFF!`;
+            let promoMsg = sub >= 2000 ? "MAX DISCOUNT UNLOCKED! 🚀" : (sub >= 1000 ? `ADD ₹${2000-sub} FOR 50% OFF!` : `ADD ₹${1000-sub} FOR 40% OFF!`);
             document.getElementById('promoText').innerText = promoMsg;
 
             // Update Savings Badge
@@ -556,8 +551,7 @@
 
             document.getElementById('bill').innerHTML = `
                 <div class="flex justify-between text-[10px] font-black uppercase text-gray-400"><span>Items Total</span><span>₹${sub}</span></div>
-                <div class="flex justify-between text-[10px] font-black uppercase text-green-500"><span>Tier Discount (${discountPct}%)</span><span>- ₹${tierDiscount}</span></div>
-                ${couponDiscount > 0 ? `<div class="flex justify-between text-[10px] font-black uppercase text-green-500"><span>Coupon Applied</span><span>- ₹${couponDiscount}</span></div>` : ''}
+                <div class="flex justify-between text-[10px] font-black uppercase text-green-500"><span>Coupon Applied (${appliedCoupon})</span><span>- ₹${totalSavings}</span></div>
                 <div class="flex justify-between text-[10px] font-black uppercase text-gray-400"><span>Delivery Fee</span><span>${deliveryFee === 0 ? '<span class="text-green-500">FREE</span>' : '₹'+deliveryFee}</span></div>
                 <div class="pt-4 border-t border-black/5 flex justify-between items-center">
                     <span class="h1 italic !text-xl">Total</span>
@@ -566,27 +560,15 @@
             `;
         }
 
-        function setCoupon(code) {
-            document.getElementById('cartCouponInput').value = code;
-            applyCoupon();
-        }
-
+        function setCoupon(code) { appliedCoupon = code; renderCart(); }
         function applyCoupon() {
             const code = document.getElementById('cartCouponInput').value.toUpperCase();
-            const msg = document.getElementById('cartCouponMsg');
-            msg.classList.remove('hidden', 'text-green-500', 'text-red-500');
-            
-            if (code === 'LOUD100' || code === 'FREE') {
-                appliedCoupon = code;
-                msg.innerText = `COUPON ${code} APPLIED! 🚀`;
-                msg.classList.add('text-green-500');
-            } else {
-                appliedCoupon = null;
-                msg.innerText = "INVALID CODE";
-                msg.classList.add('text-red-500');
-            }
-            msg.classList.remove('hidden');
-            renderCart();
+            const ids = Object.keys(cart).filter(i=>cart[i]>0);
+            const sub = ids.reduce((s,i)=>s+(DATA.find(x=>x.id==i).d*cart[i]), 0);
+            if (code === 'LOUD40' && sub < 1000) return alert("Add ₹" + (1000-sub) + " more for LOUD40");
+            if (code === 'LOUD50' && sub < 2000) return alert("Add ₹" + (2000-sub) + " more for LOUD50");
+            if (['LOUD30','LOUD40','LOUD50'].includes(code)) { appliedCoupon = code; renderCart(); }
+        }
         }
 
         function upd(id, d) { cart[id] = Math.max(0, (cart[id] || 0) + d); localStorage.setItem('cart', JSON.stringify(cart)); render(); if(document.getElementById('sideCart').classList.contains('open')) renderCart(); }
