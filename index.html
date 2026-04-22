@@ -157,8 +157,48 @@
     <div id="checkoutSheet" class="fixed top-0 right-0 h-full w-full md:w-[600px] bg-white flex flex-col shadow-2xl overflow-hidden">
         <div class="p-8 border-b border-gray-100 flex items-center justify-between"><h3 id="checkoutTitle" class="h2 italic">Fulfillment</h3><button onclick="closeCheckout()" class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center font-black">×</button></div>
         <div class="flex-1 overflow-y-auto p-8 lg:p-12 no-scrollbar space-y-12">
-            <div id="shippingView" class="space-y-8"><h4 class="meta-text !text-black font-black">Select Delivery Location</h4><div id="checkoutAddrList" class="grid grid-cols-1 gap-4"></div><button onclick="openAccount(); closeCheckout();" class="w-full border-2 border-black p-4 rounded-full btn-text !text-[10px]">+ Add New Address</button><button onclick="showPayment()" id="proceedToPayBtn" class="w-full bg-black text-white btn-pro btn-text opacity-30 pointer-events-none transition-all">Proceed to Payment</button></div>
-            <div id="paymentView" class="hidden space-y-10"><div class="p-12 bg-gray-50 rounded-3xl text-center border border-gray-100"><div class="w-48 h-48 bg-white border border-gray-200 mx-auto mb-6 flex items-center justify-center"><span class="material-symbols-outlined text-6xl text-gray-100">qr_code_2</span></div><p class="meta-text !text-black !text-[10px] mb-2">Scan & Pay via UPI</p><p class="text-[12px] font-black tracking-widest opacity-60">loudwarehouse@upi</p></div><div class="field-box"><span class="material-symbols-outlined field-icon">receipt_long</span><input id="utr" placeholder="Enter Transaction UTR"></div><button onclick="completeOrder()" class="w-full bg-black text-white btn-pro btn-text">Verify & Confirm</button></div>
+            <!-- SHIPPING -->
+            <div id="shippingView" class="space-y-8">
+                <h4 class="meta-text !text-black font-black">Select Delivery Location</h4>
+                <div id="checkoutAddrList" class="grid grid-cols-1 gap-4"></div>
+                <button onclick="openAccount(); closeCheckout();" class="w-full border-2 border-black p-4 rounded-full btn-text !text-[10px]">+ Add New Address</button>
+                <button onclick="showCouponView()" id="proceedToCouponBtn" class="w-full bg-black text-white btn-pro btn-text opacity-30 pointer-events-none transition-all">Proceed to Coupons</button>
+            </div>
+
+            <!-- COUPONS -->
+            <div id="couponView" class="hidden space-y-10">
+                <h4 class="meta-text !text-black font-black">Apply Promo Code</h4>
+                <div class="bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                    <div class="flex gap-4">
+                        <input id="couponInput" type="text" placeholder="Enter Code" class="flex-1 !bg-white !p-4 !pl-6 rounded-2xl font-black uppercase text-sm border-none outline-none">
+                        <button onclick="applyCoupon()" class="bg-black text-white px-8 rounded-2xl btn-text !text-[10px]">Apply</button>
+                    </div>
+                    <p id="couponMsg" class="text-[9px] font-black uppercase mt-4 hidden"></p>
+                </div>
+                <div class="space-y-4">
+                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Available Offers</p>
+                    <div onclick="setCoupon('LOUD100')" class="p-5 border border-dashed border-gray-200 rounded-3xl cursor-pointer hover:border-black transition-all group">
+                        <div class="flex justify-between items-center"><p class="font-black text-sm uppercase">LOUD100</p><span class="material-symbols-outlined text-gray-300 group-hover:text-black">add_circle</span></div>
+                        <p class="text-[9px] text-gray-400 uppercase">Flat ₹100 OFF on your order</p>
+                    </div>
+                    <div onclick="setCoupon('FREE')" class="p-5 border border-dashed border-gray-200 rounded-3xl cursor-pointer hover:border-black transition-all group">
+                        <div class="flex justify-between items-center"><p class="font-black text-sm uppercase">FREE</p><span class="material-symbols-outlined text-gray-300 group-hover:text-black">add_circle</span></div>
+                        <p class="text-[9px] text-gray-400 uppercase">Zero Delivery Charges</p>
+                    </div>
+                </div>
+                <button onclick="showPayment()" class="w-full bg-black text-white btn-pro btn-text">Continue to Payment</button>
+            </div>
+
+            <!-- PAYMENT -->
+            <div id="paymentView" class="hidden space-y-10">
+                <div class="p-12 bg-gray-50 rounded-3xl text-center border border-gray-100">
+                    <div class="w-48 h-48 bg-white border border-gray-200 mx-auto mb-6 flex items-center justify-center"><img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=9441276604@ybl%26pn=LOUD%20COMMERCE" class="w-full h-full p-4"/></div>
+                    <p class="meta-text !text-black !text-[10px] mb-2">Scan & Pay via UPI</p>
+                    <p class="text-[12px] font-black tracking-widest opacity-60">9441276604@ybl</p>
+                </div>
+                <div class="field-box"><span class="material-symbols-outlined field-icon">receipt_long</span><input id="utr" placeholder="Enter Transaction UTR"></div>
+                <button onclick="completeOrder()" class="w-full bg-black text-white btn-pro btn-text">Verify & Confirm</button>
+            </div>
         </div>
     </div>
 
@@ -460,10 +500,42 @@
         }
         function renderCheckoutAddrs() {
             document.getElementById('checkoutAddrList').innerHTML = addresses.map((a,i) => `<div onclick="selectAddr(${i})" class="p-6 border-2 ${selAddrIdx===i?'border-black bg-black text-white':'border-gray-100'} rounded-3xl cursor-pointer hover:border-black transition-all"><h5 class="meta-text ${selAddrIdx===i?'!text-white':''} mb-2">Saved Spot</h5><p class="text-sm font-bold">${a.flat}, Floor ${a.floor}, ${a.street}</p></div>`).join('') || '<p class="meta-text py-10 text-center">No addresses found.</p>';
-            document.getElementById('proceedToPayBtn').classList.toggle('opacity-30', selAddrIdx===-1); document.getElementById('proceedToPayBtn').classList.toggle('pointer-events-none', selAddrIdx===-1);
+            document.getElementById('proceedToCouponBtn').classList.toggle('opacity-30', selAddrIdx===-1); document.getElementById('proceedToCouponBtn').classList.toggle('pointer-events-none', selAddrIdx===-1);
         }
         function selectAddr(i) { selAddrIdx = i; renderCheckoutAddrs(); }
-        function showPayment() { document.getElementById('shippingView').classList.add('hidden'); document.getElementById('paymentView').classList.remove('hidden'); document.getElementById('checkoutTitle').innerText = "Payment"; }
+        function showCouponView() {
+            document.getElementById('shippingView').classList.add('hidden');
+            document.getElementById('couponView').classList.remove('hidden');
+            document.getElementById('checkoutTitle').innerText = "Offers";
+        }
+
+        let appliedCoupon = null;
+        function setCoupon(code) {
+            document.getElementById('couponInput').value = code;
+            applyCoupon();
+        }
+
+        function applyCoupon() {
+            const code = document.getElementById('couponInput').value.toUpperCase();
+            const msg = document.getElementById('couponMsg');
+            msg.classList.remove('hidden', 'text-green-500', 'text-red-500');
+            
+            if (code === 'LOUD100' || code === 'FREE') {
+                appliedCoupon = code;
+                msg.innerText = `COUPON ${code} APPLIED! 🚀`;
+                msg.classList.add('show', 'text-green-500');
+            } else {
+                appliedCoupon = null;
+                msg.innerText = "INVALID COUPON CODE";
+                msg.classList.add('show', 'text-red-500');
+            }
+        }
+
+        function showPayment() { 
+            document.getElementById('couponView').classList.add('hidden'); 
+            document.getElementById('paymentView').classList.remove('hidden'); 
+            document.getElementById('checkoutTitle').innerText = "Payment"; 
+        }
         
         async function completeOrder() {
             const ids = Object.keys(cart).filter(i=>cart[i]>0);
@@ -473,8 +545,14 @@
             if (sub >= 2000) discountPct = 50;
             else if (sub >= 1000) discountPct = 40;
             
-            const discountAmt = Math.floor(sub * (discountPct / 100));
-            const total = (sub - discountAmt) + (sub >= 199 ? 0 : 30);
+            const tierDiscount = Math.floor(sub * (discountPct / 100));
+            let deliveryFee = sub >= 199 ? 0 : 30;
+            let couponDiscount = 0;
+
+            if (appliedCoupon === 'LOUD100') couponDiscount = 100;
+            if (appliedCoupon === 'FREE') deliveryFee = 0;
+
+            const total = (sub - tierDiscount - couponDiscount) + deliveryFee;
 
             const orderItems = ids.map(i => { const p = DATA.find(x=>x.id==i); return { id: i, name: p.name, qty: cart[i], price: p.d }; });
             const selAddr = addresses[selAddrIdx];
