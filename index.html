@@ -167,10 +167,39 @@
         <div class="p-8 border-b border-gray-100 flex items-center justify-between"><h3 id="checkoutTitle" class="h2 italic">Fulfillment</h3><button onclick="closeCheckout()" class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center font-black">×</button></div>
         <div class="flex-1 overflow-y-auto p-8 lg:p-12 no-scrollbar space-y-12">
             <!-- SHIPPING -->
-            <div id="shippingView" class="space-y-8">
-                <h4 class="meta-text !text-black font-black">Select Delivery Location</h4>
-                <div id="checkoutAddrList" class="grid grid-cols-1 gap-4"></div>
-                <button onclick="openAccount(); closeCheckout();" class="w-full border-2 border-black p-4 rounded-full btn-text !text-[10px]">+ Add New Address</button>
+            <div id="shippingView" class="space-y-10">
+                <div class="space-y-6">
+                    <h4 class="meta-text !text-black font-black">1. Select Delivery Location</h4>
+                    <div id="checkoutAddrList" class="grid grid-cols-1 gap-4"></div>
+                    <button onclick="openAccount(); closeCheckout();" class="w-full border-2 border-black p-4 rounded-full btn-text !text-[10px]">+ Add New Address</button>
+                </div>
+
+                <div class="space-y-6 pt-10 border-t border-gray-100">
+                    <h4 class="meta-text !text-black font-black">2. Select Delivery Slot</h4>
+                    <div id="slotList" class="grid grid-cols-2 gap-3">
+                        <div onclick="selectSlot('07 AM - 10 AM', this)" class="slot-card p-4 border-2 border-gray-100 rounded-2xl cursor-pointer text-center hover:border-black transition-all">
+                            <p class="text-[9px] font-black uppercase text-gray-400 mb-1">Morning</p>
+                            <p class="font-bold text-xs uppercase">07 AM - 10 AM</p>
+                        </div>
+                        <div onclick="selectSlot('10 AM - 01 PM', this)" class="slot-card p-4 border-2 border-gray-100 rounded-2xl cursor-pointer text-center hover:border-black transition-all">
+                            <p class="text-[9px] font-black uppercase text-gray-400 mb-1">Mid-Day</p>
+                            <p class="font-bold text-xs uppercase">10 AM - 01 PM</p>
+                        </div>
+                        <div onclick="selectSlot('01 PM - 04 PM', this)" class="slot-card p-4 border-2 border-gray-100 rounded-2xl cursor-pointer text-center hover:border-black transition-all">
+                            <p class="text-[9px] font-black uppercase text-gray-400 mb-1">Afternoon</p>
+                            <p class="font-bold text-xs uppercase">01 PM - 04 PM</p>
+                        </div>
+                        <div onclick="selectSlot('04 PM - 07 PM', this)" class="slot-card p-4 border-2 border-gray-100 rounded-2xl cursor-pointer text-center hover:border-black transition-all">
+                            <p class="text-[9px] font-black uppercase text-gray-400 mb-1">Evening</p>
+                            <p class="font-bold text-xs uppercase">04 PM - 07 PM</p>
+                        </div>
+                        <div onclick="selectSlot('07 PM - 10 PM', this)" class="slot-card p-4 border-2 border-gray-100 rounded-2xl cursor-pointer text-center hover:border-black transition-all col-span-2">
+                            <p class="text-[9px] font-black uppercase text-gray-400 mb-1">Night</p>
+                            <p class="font-bold text-xs uppercase">07 PM - 10 PM</p>
+                        </div>
+                    </div>
+                </div>
+
                 <button onclick="showPayment()" id="proceedToPayBtn" class="w-full bg-black text-white btn-pro btn-text opacity-30 pointer-events-none transition-all">Proceed to Payment</button>
             </div>
 
@@ -268,7 +297,7 @@
         let user = JSON.parse(localStorage.getItem('user') || 'null');
         let addresses = JSON.parse(localStorage.getItem('addrs') || '[]');
         let history = JSON.parse(localStorage.getItem('hist') || '[]');
-        let selAddrIdx = -1; let cat = "All";
+        let selAddrIdx = -1; let cat = "All"; let selSlot = null;
 
         function toggleOverlay(o) {
             const ov = document.getElementById('overlay');
@@ -618,7 +647,28 @@
                 document.getElementById('proceedToPayBtn').classList.toggle('pointer-events-none', selAddrIdx===-1);
             }
         }
-        function selectAddr(i) { selAddrIdx = i; renderCheckoutAddrs(); }
+        function selectAddr(i) { 
+            selAddrIdx = i; renderCheckoutAddrs(); 
+            validateCheckoutSteps();
+        }
+        function selectSlot(s, el) {
+            selSlot = s;
+            document.querySelectorAll('.slot-card').forEach(c => {
+                c.classList.remove('border-black', 'bg-black', 'text-white');
+                c.classList.add('border-gray-100');
+            });
+            el.classList.add('border-black', 'bg-black', 'text-white');
+            el.classList.remove('border-gray-100');
+            validateCheckoutSteps();
+        }
+        function validateCheckoutSteps() {
+            if (selAddrIdx !== -1 && selSlot !== null) {
+                const btn = document.getElementById('proceedToPayBtn');
+                if (btn) {
+                    btn.classList.remove('opacity-30', 'pointer-events-none');
+                }
+            }
+        }
         
         function showPayment() { 
             document.getElementById('shippingView').classList.add('hidden'); 
@@ -652,6 +702,7 @@
                 total_amount: total, 
                 items: orderItems, 
                 address: selAddr, 
+                delivery_slot: selSlot,
                 utr: document.getElementById('utr').value || 'UPI-PENDING',
                 discount_applied: totalSavings,
                 discount_tier: (discountPct || 0) + "%" + (appliedCoupon ? ` (${appliedCoupon})` : '')
@@ -693,6 +744,7 @@
                           `📞 *Phone:* ${user.phone}%0A%0A` +
                           `🛒 *Items:*%0A` +
                           orderItems.map(i => `- ${i.qty}x ${i.name}`).join('%0A') + `%0A%0A` +
+                          `⏰ *Slot:* ${selSlot}%0A` +
                           `💰 *Total:* ₹${total}%0A` +
                           `📍 *Address:* ${selAddr.flat}, ${selAddr.floor}F, ${selAddr.street}%0A%0A` +
                           `🗺️ *Map:* https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selAddr.street)}`;
