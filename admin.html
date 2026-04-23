@@ -21,11 +21,28 @@
         .btn-primary:active { scale: 0.95; }
         .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 12px; color: #888; font-weight: 700; font-size: 13px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
         .sidebar-link.active { background: white; color: black; }
-        .toast { position: fixed; bottom: 40px; right: 40px; background: white; color: black; padding: 20px 40px; border-radius: 100px; font-weight: 900; box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: translateY(100px); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .toast { position: fixed; bottom: 40px; right: 40px; background: white; color: black; padding: 20px 40px; border-radius: 100px; font-weight: 900; box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: translateY(100px); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000; }
         .toast.show { transform: translateY(0); }
+        
+        /* MOBILE OVERRIDES */
+        @media (max-width: 1024px) {
+            aside { transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 80% !important; box-shadow: 20px 0 60px rgba(0,0,0,0.8); }
+            aside.open { transform: translateX(0); }
+            main { margin-left: 0 !important; padding: 1.5rem !important; }
+            .h1.text-6xl { font-size: 2.5rem !important; }
+            header { flex-direction: column; align-items: flex-start !important; gap: 2rem; }
+        }
+        .mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-blur: 5px; z-index: 40; display: none; }
+        .mobile-overlay.show { display: block; }
     </style>
 </head>
 <body class="flex min-h-screen">
+
+    <!-- MOBILE TOGGLE -->
+    <button onclick="toggleSidebar()" class="lg:hidden fixed top-6 left-6 z-[60] w-12 h-12 bg-white/10 backdrop-blur-lg rounded-xl flex items-center justify-center border border-white/5">
+        <span class="material-symbols-outlined text-white">menu</span>
+    </button>
+    <div id="mobileOverlay" class="mobile-overlay" onclick="toggleSidebar()"></div>
 
     <!-- SIDEBAR -->
     <aside class="w-72 border-r border-white/5 p-10 flex flex-col fixed h-full bg-black z-50">
@@ -71,7 +88,7 @@
         <div id="controls" class="mb-12">
             <div class="relative max-w-2xl">
                 <span class="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-white/20">search</span>
-                <input type="text" id="adminSearch" oninput="renderInventory()" placeholder="Search products, IDs, or categories..." class="w-full pl-16 pr-8 py-5 bg-white/5 rounded-2xl text-sm font-bold border border-white/5 focus:border-white/20 outline-none transition-all">
+                <input type="text" id="adminSearch" oninput="handleSearch()" placeholder="Search products, IDs, or categories..." class="w-full pl-16 pr-8 py-5 bg-white/5 rounded-2xl text-sm font-bold border border-white/5 focus:border-white/20 outline-none transition-all">
             </div>
         </div>
 
@@ -173,9 +190,24 @@
         function setView(v) {
             currentView = v;
             document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-            document.getElementById(`nav-${v}`).classList.add('active');
+            const navItem = document.getElementById(`nav-${v}`);
+            if (navItem) navItem.classList.add('active');
             document.getElementById('viewTitle').innerText = v.toUpperCase();
+            if (window.innerWidth <= 1024) toggleSidebar(); // Auto-close on mobile
             render();
+        }
+
+        let searchTimeout;
+        function handleSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                if (currentView === 'inventory') renderInventory(document.getElementById('contentArea'));
+            }, 300);
+        }
+
+        function toggleSidebar() {
+            document.querySelector('aside').classList.toggle('open');
+            document.getElementById('mobileOverlay').classList.toggle('show');
         }
 
         function render() {
