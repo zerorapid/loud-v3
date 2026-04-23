@@ -8,63 +8,66 @@
     <title>LOUD | FINAL ECOSYSTEM V53</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
-        :root { --bg: #f9f9f9; --surface: #ffffff; --ink: #000000; --muted: #5e5e5e; --border: #eeeeee; --accent: #22c55e; }
+        :root { --bg: #ffffff; --surface: #ffffff; --ink: #000000; --muted: #6b6b6b; --border: #e2e2e2; --accent: #ff5c00; --uber-gray: #f6f6f6; }
         
         /* VALIDATION STYLES */
         input:invalid { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
         input:focus:invalid { border-color: #ef4444 !important; outline: none; }
         
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; display: inline-block; line-height: 1; vertical-align: middle; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--ink); -webkit-tap-highlight-color: transparent; font-size: 16px; line-height: 1.5; font-weight: 400; margin: 0; padding: 0; overflow-x: hidden; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; display: inline-block; line-height: 1; vertical-align: middle; }
+        body { font-family: 'Outfit', sans-serif; background-color: var(--bg); color: var(--ink); -webkit-tap-highlight-color: transparent; font-size: 16px; line-height: 1.5; font-weight: 400; margin: 0; padding: 0; overflow-x: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        h1, .h1 { font-size: clamp(40px, 6vw, 56px); line-height: 1.1; font-weight: 950; letter-spacing: -0.04em; font-style: italic; text-transform: uppercase; }
-        h2, .h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.2; font-weight: 800; letter-spacing: -0.02em; text-transform: uppercase; }
-        h3, .h3 { font-size: 24px; line-height: 1.2; font-weight: 700; }
-        .meta-text { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; }
+        h1, .h1 { font-size: clamp(32px, 6vw, 48px); line-height: 1; font-weight: 800; letter-spacing: -0.04em; text-transform: uppercase; }
+        h2, .h2 { font-size: clamp(24px, 4vw, 36px); line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; }
+        h3, .h3 { font-size: 20px; line-height: 1.2; font-weight: 600; letter-spacing: -0.01em; }
+        .meta-text { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; }
 
-        input { font-size: 16px !important; outline: none; border: 1px solid var(--border); background: white; padding: 18px 16px 18px 64px !important; width: 100%; border-radius: 14px; transition: all 0.3s; }
-        input:focus { border-color: black; }
+        input { font-size: 16px !important; outline: none; border: none; background: var(--uber-gray); padding: 16px 16px 16px 56px !important; width: 100%; border-radius: 8px; transition: all 0.2s; font-weight: 500; }
+        input:focus { background: #eeeeee; }
         .field-box { position: relative; width: 100%; display: flex; align-items: center; }
-        .field-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #bbb; font-size: 24px; pointer-events: none; z-index: 10; }
+        .field-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--ink); font-size: 22px; pointer-events: none; z-index: 10; opacity: 0.6; }
 
-        .btn-pro { padding: 16px 32px; border-radius: 9999px; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .btn-pro:active { scale: 0.95; }
+        .btn-pro { padding: 14px 28px; border-radius: 8px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .btn-pro:active { transform: scale(0.96); }
         
-        * { border-radius: 16px; }
-        html, body, div, header, main, section, nav, footer { border-radius: 0; }
-        .rounded-3xl { border-radius: 40px; }
-        .glass { backdrop-filter: blur(24px); background-color: rgba(255,255,255,0.98); }
-        .max-width { max-width: 1440px; margin: 0 auto; padding: 0 20px; }
+        * { border-radius: 0px; } /* Uber uses sharper corners or very small radius */
+        .rounded-uber { border-radius: 12px; }
+        .rounded-circle { border-radius: 9999px; }
+        
+        .glass { background-color: rgba(255,255,255,0.95); border-bottom: 1px solid var(--border); }
+        .max-width { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
         @media (min-width: 1024px) { .max-width { padding: 0 40px; } }
 
-        #sideCart, #sideAccount, #pdp, #checkoutSheet { z-index: 500; transform: translateX(100%); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        #sideCart, #sideAccount, #pdp, #checkoutSheet { z-index: 500; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); background: white; border-left: 1px solid var(--border); }
         #sideCart.open, #sideAccount.open, #pdp.open, #checkoutSheet.open { transform: translateX(0); }
         
         @media (max-width: 768px) { 
-            #sideCart, #sideAccount, #pdp, #checkoutSheet { transform: translateY(100%); border-radius: 32px 32px 0 0; width: 100% !important; height: 96vh !important; top: auto !important; bottom: 0 !important; } 
+            #sideCart, #sideAccount, #pdp, #checkoutSheet { transform: translateY(100%); width: 100% !important; height: 92vh !important; top: auto !important; bottom: 0 !important; border-left: none; border-top: 1px solid var(--border); } 
             #sideCart.open, #sideAccount.open, #pdp.open, #checkoutSheet.open { transform: translateY(0); }
-            .product-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+            .product-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 1px !important; background: var(--border); border: 1px solid var(--border); }
+            .product-grid > div { background: white; border-radius: 0; }
         }
 
-        .product-grid { display: grid; gap: 16px; grid-template-columns: repeat(5, 1fr); }
+        .product-grid { display: grid; gap: 24px; grid-template-columns: repeat(5, 1fr); }
         @media (min-width: 1440px) { .product-grid { grid-template-columns: repeat(6, 1fr); } }
 
-        .stepper { background: black; color: white; display: flex; align-items: center; justify-content: space-between; width: 110px; height: 50px; font-weight: 900; border-radius: 9999px; overflow: hidden; }
-        .step-btn { width: 42px; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .stepper { background: var(--uber-gray); color: var(--ink); display: flex; align-items: center; justify-content: space-between; width: 100px; height: 40px; font-weight: 700; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+        .step-btn { width: 36px; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
+        .step-btn:hover { background: #eee; }
 
         .tracking-step { display: flex; flex-direction: column; align-items: center; position: relative; flex: 1; }
-        .tracking-step::after { content: ''; position: absolute; top: 20px; left: 50%; width: 100%; height: 2px; background: var(--border); z-index: -1; }
+        .tracking-step::after { content: ''; position: absolute; top: 12px; left: 50%; width: 100%; height: 2px; background: var(--border); z-index: -1; }
         .tracking-step:last-child::after { display: none; }
-        .tracking-step.active .step-dot { background: black; color: white; border-color: black; }
-        .step-dot { width: 40px; height: 40px; border-radius: 9999px; border: 2px solid var(--border); background: white; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+        .tracking-step.active .step-dot { background: var(--ink); color: white; border-color: var(--ink); }
+        .step-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); background: white; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 10px; }
 
-        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: pulse 1.5s infinite; }
+        .skeleton { background: linear-gradient(90deg, #f6f6f6 25%, #eeeeee 50%, #f6f6f6 75%); background-size: 200% 100%; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
@@ -86,10 +89,23 @@
             <div class="md:hidden mb-6"><div class="field-box"><span class="material-symbols-outlined field-icon">search</span><input id="searchMobile" placeholder="SEARCH STOCK..." oninput="search()"/></div></div>
             
             <!-- BENTO BANNERS -->
-            <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10 lg:mb-16">
-                <div class="lg:col-span-2 relative h-56 lg:h-96 bg-black rounded-3xl overflow-hidden flex items-center p-8 lg:p-12 text-white group"><div class="z-10"><h2 class="h1 !text-white mb-6">FLAT 50% OFF<br>LIQUIDATION</h2><button onclick="scrollToGrid()" class="bg-white text-black btn-pro font-black uppercase text-[10px] tracking-widest hover:scale-105">Shop Stock</button></div></div>
-                <div onclick="setCat('Dairy')" class="hidden md:flex relative h-56 lg:h-96 bg-white rounded-3xl overflow-hidden p-12 border border-gray-200 hover:border-black transition-all cursor-pointer"><div class="z-10"><h3 class="h2 italic mb-8">Dairy<br>10 Min</h3><button class="border-2 border-black text-black px-8 py-3 rounded-full font-black text-[10px] uppercase">Explore</button></div></div>
-                <div onclick="setCat('Pantry')" class="hidden lg:flex relative h-56 lg:h-96 bg-zinc-900 rounded-3xl overflow-hidden p-12 text-white hover:bg-black transition-all cursor-pointer"><div class="z-10"><h3 class="h2 italic mb-6">Pantry<br>Stock</h3><button class="bg-white text-black px-8 py-3 rounded-full font-black text-[10px] uppercase">Stock Up</button></div></div>
+            <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                <div class="lg:col-span-2 relative h-64 lg:h-[400px] bg-black flex items-center p-8 lg:p-16 text-white group overflow-hidden">
+                    <div class="z-10">
+                        <h2 class="h1 !text-white mb-8">FLAT 50% OFF<br>LIQUIDATION</h2>
+                        <button onclick="scrollToGrid()" class="bg-white text-black btn-pro hover:bg-gray-200">Shop Stock</button>
+                    </div>
+                </div>
+                <div onclick="setCat('Dairy')" class="hidden md:flex relative h-64 lg:h-[400px] bg-white border border-gray-200 flex-col justify-between p-12 hover:border-black transition-all cursor-pointer">
+                    <h3 class="h2 mb-4">Dairy<br>Essentials</h3>
+                    <p class="text-xs font-medium opacity-60">Delivered in 10 Min</p>
+                    <div class="mt-auto"><span class="material-symbols-outlined">arrow_forward</span></div>
+                </div>
+                <div onclick="setCat('Pantry')" class="hidden lg:flex relative h-64 lg:h-[400px] bg-black text-white flex-col justify-between p-12 hover:bg-zinc-900 transition-all cursor-pointer">
+                    <h3 class="h2 mb-4">Pantry<br>Stock Up</h3>
+                    <p class="text-xs font-medium opacity-60">Warehouse Direct</p>
+                    <div class="mt-auto"><span class="material-symbols-outlined !text-white">arrow_forward</span></div>
+                </div>
             </section>
 
             <!-- CATEGORY PODS -->
@@ -421,24 +437,27 @@
 
             document.getElementById('list').innerHTML = sorted.map(p => {
                 const n = cart[p.id] || 0;
-                return `<div class="bg-white border border-gray-100 p-6 lg:p-8 rounded-3xl flex flex-col active:scale-95 cursor-pointer" onclick="openPDP(${p.id})">
-                    <div class="relative aspect-square bg-gray-50 rounded-2xl mb-6 flex items-center justify-center p-6">
-                        <img src="${p.img[0]}" class="w-full object-contain"/>
+                return `<div class="bg-white border border-gray-100 p-6 lg:p-8 flex flex-col group cursor-pointer transition-colors hover:bg-gray-50" onclick="openPDP(${p.id})">
+                    <div class="relative aspect-square bg-white mb-6 flex items-center justify-center p-4">
+                        <img src="${p.img[0]}" class="w-full h-full object-contain transition-transform group-hover:scale-105"/>
                     </div>
-                    <h3 class="h3 !text-lg mb-1 line-clamp-1">${p.name}</h3>
-                    <div class="flex justify-between items-end mt-auto">
-                        <div>
-                            <p class="text-[10px] text-gray-300 line-through">₹${p.mrp}</p>
-                            <p class="h3 !text-lg">₹${p.d}</p>
+                    <div class="flex flex-col flex-1">
+                        <h3 class="h3 !text-base mb-1 line-clamp-2 min-h-[3rem]">${p.name}</h3>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 tracking-wider">${p.cat}</p>
+                        <div class="flex justify-between items-end mt-auto">
+                            <div>
+                                <p class="h3 !text-lg !font-bold">₹${p.d}</p>
+                                ${p.mrp > p.d ? `<p class="text-[10px] text-gray-300 line-through">₹${p.mrp}</p>` : ''}
+                            </div>
+                            ${n === 0 ? 
+                                `<button onclick="event.stopPropagation(); upd(${p.id},1)" class="bg-black text-white px-5 py-2 rounded-md font-bold uppercase text-[10px] tracking-widest hover:bg-zinc-800 transition-colors">Add</button>` :
+                                `<div class="stepper" onclick="event.stopPropagation()">
+                                    <div class="step-btn" onclick="upd(${p.id},-1)">-</div>
+                                    <div class="text-[12px] font-bold">${n}</div>
+                                    <div class="step-btn" onclick="upd(${p.id},1)">+</div>
+                                </div>`
+                            }
                         </div>
-                        ${n === 0 ? 
-                            `<button onclick="event.stopPropagation(); upd(${p.id},1)" class="bg-black text-white px-6 py-2 rounded-full font-black uppercase text-[9px] tracking-widest">Add</button>` :
-                            `<div class="stepper !w-[80px] !h-[36px]" onclick="event.stopPropagation()">
-                                <div class="step-btn" onclick="upd(${p.id},-1)">-</div>
-                                <div class="text-[11px]">${n}</div>
-                                <div class="step-btn" onclick="upd(${p.id},1)">+</div>
-                            </div>`
-                        }
                     </div>
                 </div>`
             }).join('');
