@@ -47,22 +47,32 @@
         .rounded-uber { border-radius: 12px; }
         .rounded-circle { border-radius: 9999px; }
         
-        .glass { background-color: rgba(255,255,255,0.95); border-bottom: 1px solid var(--border); }
-        .max-width { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+        .glass { background-color: rgba(255,255,255,0.98); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+        .max-width { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
         @media (min-width: 1024px) { .max-width { padding: 0 40px; } }
 
-        #sideCart, #sideAccount, #pdp, #checkoutSheet { z-index: 500; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); background: white; border-left: 1px solid var(--border); }
+        #sideCart, #sideAccount, #pdp, #checkoutSheet { z-index: 500; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); background: white; }
         #sideCart.open, #sideAccount.open, #pdp.open, #checkoutSheet.open { transform: translateX(0); }
         
         @media (max-width: 768px) { 
-            #sideCart, #sideAccount, #pdp, #checkoutSheet { transform: translateY(100%); width: 100% !important; height: 92vh !important; top: auto !important; bottom: 0 !important; border-left: none; border-top: 1px solid var(--border); } 
+            #sideCart, #sideAccount, #pdp, #checkoutSheet { transform: translateY(100%); width: 100% !important; height: 94vh !important; top: auto !important; bottom: 0 !important; border-left: none; border-top: 1px solid var(--border); border-radius: 24px 24px 0 0; } 
             #sideCart.open, #sideAccount.open, #pdp.open, #checkoutSheet.open { transform: translateY(0); }
-            .product-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 1px !important; background: var(--border); border: 1px solid var(--border); }
-            .product-grid > div { background: white; border-radius: 0; }
+            .product-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; padding: 12px !important; background: white !important; border: none !important; }
+            .product-grid > div { border: 1px solid #f0f0f0 !important; border-radius: 12px !important; padding: 12px !important; }
+            h1, .h1 { font-size: 28px; }
+            h2, .h2 { font-size: 22px; }
         }
 
         .product-grid { display: grid; gap: 24px; grid-template-columns: repeat(5, 1fr); }
         @media (min-width: 1440px) { .product-grid { grid-template-columns: repeat(6, 1fr); } }
+
+        /* ACTIVE FEEDBACK */
+        .btn-pro:active, .card-active:active { transform: scale(0.96); opacity: 0.8; }
+        
+        /* SAFE AREA */
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        .mb-safe { margin-bottom: env(safe-area-inset-bottom); }
+    </style>
 
         .stepper { background: var(--uber-gray); color: var(--ink); display: flex; align-items: center; justify-content: space-between; width: 100px; height: 40px; font-weight: 700; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
         .step-btn { width: 36px; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
@@ -130,7 +140,30 @@
     </main>
 
     <!-- MOBILE NAV -->
-    <nav class="md:hidden fixed bottom-0 left-0 w-full h-16 glass border-t border-[var(--border)] flex justify-around items-center px-4 z-[150]"><div onclick="window.scrollTo({top:0,behavior:'smooth'})" class="flex flex-col items-center text-black cursor-pointer"><span class="material-symbols-outlined">home</span><span class="text-[9px] font-black mt-1 uppercase">Home</span></div><div onclick="openAccount()" class="flex flex-col items-center text-gray-400 cursor-pointer"><span class="material-symbols-outlined">account_circle</span><span class="text-[9px] font-black mt-1 uppercase">Account</span></div></nav>
+    <!-- PREMIUM MOBILE NAV -->
+    <nav class="md:hidden fixed bottom-0 left-0 w-full glass border-t border-[var(--border)] z-[500] pb-safe">
+        <div class="flex justify-around items-center h-16">
+            <div onclick="window.scrollTo({top:0,behavior:'smooth'})" class="flex flex-col items-center gap-1 group active:scale-95 transition-transform">
+                <span class="material-symbols-outlined !text-[24px]">home</span>
+                <span class="text-[9px] font-black uppercase">Home</span>
+            </div>
+            <div onclick="document.getElementById('searchMobile').focus()" class="flex flex-col items-center gap-1 opacity-40 active:scale-95 transition-transform">
+                <span class="material-symbols-outlined !text-[24px]">search</span>
+                <span class="text-[9px] font-black uppercase">Search</span>
+            </div>
+            <div onclick="toggleCart(true)" class="flex flex-col items-center gap-1 relative active:scale-95 transition-transform">
+                <div class="relative">
+                    <span class="material-symbols-outlined !text-[24px]">shopping_cart</span>
+                    <span id="mobileBadge" class="absolute -top-1 -right-1 bg-black text-white text-[8px] w-4 h-4 flex items-center justify-center rounded-full font-black hidden">0</span>
+                </div>
+                <span class="text-[9px] font-black uppercase">Cart</span>
+            </div>
+            <div onclick="openAccount()" class="flex flex-col items-center gap-1 opacity-40 active:scale-95 transition-transform">
+                <span class="material-symbols-outlined !text-[24px]">account_circle</span>
+                <span class="text-[9px] font-black uppercase">Account</span>
+            </div>
+        </div>
+    </nav>
 
     <!-- ADMIN PANEL SHEET -->
     <div id="adminPanel" class="sheet hidden">
@@ -438,24 +471,24 @@
 
             document.getElementById('list').innerHTML = sorted.map(p => {
                 const n = cart[p.id] || 0;
-                return `<div class="bg-white border border-gray-100 p-6 lg:p-8 flex flex-col group cursor-pointer transition-colors hover:bg-gray-50" onclick="openPDP(${p.id})">
-                    <div class="relative aspect-square bg-white mb-6 flex items-center justify-center p-4">
+                return `<div class="bg-white border border-gray-100 p-4 lg:p-8 flex flex-col group cursor-pointer transition-colors hover:bg-gray-50 rounded-2xl" onclick="openPDP(${p.id})">
+                    <div class="relative aspect-square bg-white mb-4 flex items-center justify-center p-2">
                         <img src="${p.image_url}" class="w-full h-full object-contain transition-transform group-hover:scale-105"/>
-                        ${p.price > p.discount_price ? `<span class="absolute top-0 right-0 bg-black text-white text-[8px] font-bold px-2 py-1 uppercase">-${Math.round((1 - p.discount_price/p.price)*100)}%</span>` : ''}
+                        ${p.price > p.discount_price ? `<span class="absolute top-0 right-0 bg-black text-white text-[8px] font-black px-2 py-1 uppercase rounded-sm">-${Math.round((1 - p.discount_price/p.price)*100)}%</span>` : ''}
                     </div>
                     <div class="flex flex-col flex-1">
-                        <h3 class="h3 !text-base mb-1 line-clamp-2 min-h-[2.5rem]">${p.name}</h3>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 tracking-wider">${p.weight}g • ${p.category}</p>
-                        <div class="flex justify-between items-end mt-auto">
+                        <h3 class="font-bold text-sm lg:text-base mb-1 line-clamp-2 min-h-[2.5rem] italic leading-tight">${p.name}</h3>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase mb-4 tracking-widest">${p.weight}g • ${p.category}</p>
+                        <div class="flex justify-between items-end mt-auto gap-2">
                             <div>
-                                <p class="h3 !text-lg !font-bold">₹${p.discount_price}</p>
-                                ${p.price > p.discount_price ? `<p class="text-[10px] text-gray-300 line-through">₹${p.price}</p>` : ''}
+                                <p class="text-base lg:text-lg font-black italic">₹${p.discount_price}</p>
+                                ${p.price > p.discount_price ? `<p class="text-[9px] text-gray-300 line-through">₹${p.price}</p>` : ''}
                             </div>
                             ${n === 0 ? 
-                                `<button onclick="event.stopPropagation(); upd(${p.id},1)" class="bg-black text-white px-5 py-2 rounded-md font-bold uppercase text-[10px] tracking-widest hover:bg-zinc-800 transition-colors">Add</button>` :
-                                `<div class="stepper" onclick="event.stopPropagation()">
+                                `<button onclick="event.stopPropagation(); upd(${p.id},1)" class="bg-black text-white px-6 py-2.5 rounded-xl font-black uppercase text-[10px] tracking-widest active:scale-90 transition-all">Add</button>` :
+                                `<div class="stepper !h-10 !w-24 !rounded-xl" onclick="event.stopPropagation()">
                                     <div class="step-btn" onclick="upd(${p.id},-1)">-</div>
-                                    <div class="text-[12px] font-bold">${n}</div>
+                                    <div class="text-[11px] font-black">${n}</div>
                                     <div class="step-btn" onclick="upd(${p.id},1)">+</div>
                                 </div>`
                             }
@@ -494,11 +527,10 @@
         function renderCategories() {
             const cats = ["All", ...new Set(DATA.map(p => p.category))];
             document.getElementById('categoryTabs').innerHTML = cats.map(c => `
-                <div onclick="setCat('${c}')" class="flex flex-col items-center gap-3 min-w-[80px] cursor-pointer">
-                    <div class="w-16 h-16 ${cat === c ? 'bg-black text-white' : 'bg-white'} rounded-3xl flex items-center justify-center border border-gray-100">
-                        <span class="material-symbols-outlined">category</span>
+                <div onclick="setCat('${c}')" class="flex-shrink-0 active:scale-95 transition-all">
+                    <div class="px-6 py-3 rounded-full border ${cat === c ? 'bg-black text-white border-black' : 'bg-uber-gray text-gray-500 border-transparent'} text-[10px] font-black uppercase tracking-widest">
+                        ${c}
                     </div>
-                    <span class="meta-text">${c}</span>
                 </div>`).join('');
         }
         
@@ -511,38 +543,44 @@
             
             document.getElementById('pdpContent').innerHTML = `
                 <div class="bg-white">
-                    <div class="aspect-square bg-white flex items-center justify-center p-12 border-b border-gray-50">
-                        <img src="${p.image_url}" class="w-full h-full object-contain"/>
+                    <div class="relative aspect-square bg-white flex items-center justify-center p-8 lg:p-12 border-b border-gray-50">
+                        <img src="${p.image_url}" class="w-4/5 h-4/5 object-contain"/>
+                        <button onclick="closePDP()" class="md:hidden absolute top-6 right-6 w-10 h-10 bg-black/5 rounded-full flex items-center justify-center">
+                            <span class="material-symbols-outlined text-sm">close</span>
+                        </button>
                     </div>
-                    <div class="p-8 lg:p-12 space-y-8">
-                        <div>
-                            <h2 class="h1 mb-2 !text-3xl lg:!text-4xl">${p.name}</h2>
-                            <p class="text-[11px] font-black uppercase text-gray-400 tracking-widest">${p.weight}g • ${p.category}</p>
+                    <div class="p-8 lg:p-12 space-y-6">
+                        <div class="flex justify-between items-start gap-4">
+                            <div class="flex-1">
+                                <h2 class="h1 mb-2 !text-2xl lg:!text-4xl italic">${p.name}</h2>
+                                <p class="text-[9px] font-black uppercase text-gray-400 tracking-widest">${p.weight}g • ${p.category}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-black italic">₹${p.discount_price}</p>
+                                ${savings > 0 ? `<p class="text-xs text-gray-300 line-through">₹${p.price}</p>` : ''}
+                            </div>
                         </div>
                         
-                        <div class="flex items-end gap-4">
-                            <span class="text-4xl font-black italic">₹${p.discount_price}</span>
-                            ${savings > 0 ? `<span class="text-lg text-gray-300 line-through">₹${p.price}</span><span class="bg-black text-white text-[9px] font-black px-2 py-1 uppercase">Save ₹${savings}</span>` : ''}
-                        </div>
+                        ${savings > 0 ? `
+                        <div class="p-4 bg-green-50 rounded-xl flex items-center justify-between">
+                            <span class="text-[10px] font-black text-green-600 uppercase tracking-widest">You Save ₹${savings}</span>
+                            <span class="bg-green-600 text-white text-[8px] font-black px-2 py-1 rounded">DEAL</span>
+                        </div>` : ''}
 
                         <div class="space-y-4">
                             <p class="text-sm font-medium text-gray-600 leading-relaxed">${p.description}</p>
-                            <div class="p-6 bg-gray-50 border border-gray-100 rounded-2xl">
-                                <p class="text-[9px] font-black uppercase text-gray-400 mb-2 tracking-widest">Sourcing Intelligence</p>
-                                <p class="text-[10px] font-bold italic opacity-80">${p.sourcing_note || 'Standard LOUD Sourcing'}</p>
+                            <div class="p-5 bg-uber-gray border border-gray-100 rounded-xl">
+                                <p class="text-[8px] font-black uppercase text-gray-400 mb-2 tracking-widest">Sourcing Note</p>
+                                <p class="text-[10px] font-bold italic opacity-60">${p.sourcing_note || 'Warehouse-Direct Freshness Guaranteed'}</p>
                             </div>
                         </div>
                     </div>
                 </div>`;
             
             document.getElementById('pdpFooter').innerHTML = `
-                <div class="max-width w-full flex items-center justify-between gap-6">
-                    <div class="hidden lg:block">
-                        <p class="text-[10px] font-black uppercase text-gray-400 mb-1">Total</p>
-                        <p class="text-xl font-black">₹${p.discount_price}</p>
-                    </div>
-                    <button onclick="upd(${p.id},1); closePDP();" class="flex-1 bg-black text-white py-5 rounded-md font-bold uppercase text-[12px] tracking-widest hover:bg-zinc-800 transition-all active:scale-95">
-                        Add to Cart
+                <div class="max-width w-full flex items-center justify-between gap-6 pb-safe">
+                    <button onclick="upd(${p.id},1); closePDP();" class="flex-1 bg-black text-white py-5 rounded-xl font-black uppercase text-[12px] tracking-widest active:scale-95 transition-all shadow-xl">
+                        Add to Cart • ₹${p.discount_price}
                     </button>
                 </div>
             `;
@@ -597,28 +635,38 @@
             const isApplied = appliedCoupon === 'FLAT30';
 
             document.getElementById('cartBody').innerHTML = `
-                <div class="p-8 lg:p-10 space-y-8">
+                <div class="p-6 lg:p-10 space-y-6">
                     ${ids.map(i => { 
                         const p = DATA.find(x=>x.id==i); 
                         if(!p) return ''; // SKIP GHOST ITEMS
-                        return `<div class="flex justify-between items-center"><div><h4 class="h3 !text-sm uppercase line-clamp-1">${p.name}</h4><p class="meta-text">${p.weight}g • ₹${p.discount_price}</p></div><div class="stepper"><div class="step-btn" onclick="upd(${i},-1)">-</div><div class="font-black">${cart[i]}</div><div class="step-btn" onclick="upd(${i},1)">+</div></div></div>` 
+                        return `
+                        <div class="flex justify-between items-center bg-uber-gray/30 p-4 rounded-2xl">
+                            <div class="flex items-center gap-4">
+                                <img src="${p.image_url}" class="w-10 h-10 object-contain mix-blend-multiply opacity-80"/>
+                                <div>
+                                    <h4 class="font-black text-xs uppercase line-clamp-1">${p.name}</h4>
+                                    <p class="text-[9px] font-bold text-gray-400">₹${p.discount_price} • ${p.weight}g</p>
+                                </div>
+                            </div>
+                            <div class="stepper !h-8 !w-20 !rounded-lg border-none shadow-sm">
+                                <div class="step-btn text-xs" onclick="upd(${i},-1)">-</div>
+                                <div class="text-[10px] font-black">${cart[i]}</div>
+                                <div class="step-btn text-xs" onclick="upd(${i},1)">+</div>
+                            </div>
+                        </div>` 
                     }).join('')}
                     
-                    <div class="pt-10 border-t border-gray-50 space-y-6">
-                        <div class="flex justify-between items-center"><h5 class="text-[9px] font-black uppercase text-gray-400 tracking-widest">Apply Coupon</h5></div>
-                        <div class="relative overflow-hidden group">
-                            <div class="p-8 border-2 ${isApplied ? 'border-green-500 bg-green-50' : 'border-black bg-white'} rounded-[40px] transition-all duration-500">
-                                <div class="flex justify-between items-center mb-4">
+                    <div class="pt-6 border-t border-gray-50 space-y-4">
+                        <div class="relative overflow-hidden">
+                            <div class="p-6 border-2 ${isApplied ? 'border-green-500 bg-green-50' : 'border-black/5 bg-uber-gray/20'} rounded-3xl transition-all">
+                                <div class="flex justify-between items-center mb-2">
                                     <div>
-                                        <p class="font-black text-2xl italic uppercase tracking-tighter">FLAT30</p>
-                                        <p class="text-[10px] font-bold uppercase opacity-40">${isApplied ? 'Coupon Applied Successfully' : '30% Off Everything'}</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="h1 !text-2xl !italic !text-black">30% OFF</p>
+                                        <p class="text-[8px] font-black uppercase text-gray-400">Limited Deal</p>
+                                        <p class="h1 !text-xl italic !text-black">30% OFF</p>
                                     </div>
                                 </div>
-                                <button onclick="applyCoupon('FLAT30')" class="w-full ${isApplied ? 'bg-green-500 text-white' : 'bg-black text-white'} py-4 rounded-2xl font-black uppercase text-[11px] tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2">
-                                    ${isApplied ? '<span class="material-symbols-outlined text-sm">check_circle</span> APPLIED' : 'APPLY FLAT30'}
+                                <button onclick="applyCoupon('FLAT30')" class="w-full ${isApplied ? 'bg-green-500 text-white' : 'bg-black text-white'} py-3 rounded-xl font-black uppercase text-[9px] tracking-widest active:scale-95">
+                                    ${isApplied ? 'UNLOCKED' : 'APPLY FLAT30'}
                                 </button>
                             </div>
                         </div>
@@ -831,7 +879,16 @@
             }
         }
 
-        function sync() { const n = Object.values(cart).reduce((a,b)=>a+b, 0); document.getElementById('badge').innerText = n; document.getElementById('badge').classList.toggle('hidden', n===0); }
+        function sync() { 
+            const n = Object.values(cart).reduce((a,b)=>a+b, 0); 
+            document.getElementById('badge').innerText = n; 
+            document.getElementById('badge').classList.toggle('hidden', n===0); 
+            const mobBadge = document.getElementById('mobileBadge');
+            if (mobBadge) {
+                mobBadge.innerText = n;
+                mobBadge.classList.toggle('hidden', n===0);
+            }
+        }
         function scrollToGrid() { document.getElementById('gridStart').scrollIntoView({ behavior:'smooth' }); }
         function setCat(c) { cat = c; render(); }
         window.onload = () => {
