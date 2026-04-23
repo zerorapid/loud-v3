@@ -600,6 +600,7 @@
             `;
         }
 
+
         async function updateOrderStatus(id, newStatus) {
             const { error } = await _supabase.from('orders').update({ status: newStatus }).eq('id', id);
             if (error) showToast("Status Update Failed 🔴");
