@@ -34,6 +34,13 @@
         }
         .mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-blur: 5px; z-index: 40; display: none; }
         .mobile-overlay.show { display: block; }
+        
+        @keyframes pulse-orange {
+            0% { box-shadow: 0 0 0 0 rgba(255, 92, 0, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 92, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 92, 0, 0); }
+        }
+        .heat-pulse { animation: pulse-orange 2s infinite; }
     </style>
 </head>
 <body class="flex min-h-screen">
@@ -60,6 +67,9 @@
             </div>
             <div onclick="setView('analytics')" id="nav-analytics" class="sidebar-link">
                 <span class="material-symbols-outlined">insights</span> Intelligence
+            </div>
+            <div onclick="setView('dispatch')" id="nav-dispatch" class="sidebar-link">
+                <span class="material-symbols-outlined">directions_bike</span> Dispatcher
             </div>
             <div onclick="setView('gaps')" id="nav-gaps" class="sidebar-link">
                 <span class="material-symbols-outlined">search_off</span> Market Gaps
@@ -215,6 +225,7 @@
             if (currentView === 'inventory') renderInventory(area);
             else if (currentView === 'orders') renderOrders(area);
             else if (currentView === 'analytics') renderAnalytics(area);
+            else if (currentView === 'dispatch') renderDispatch(area);
             else if (currentView === 'gaps') renderGaps(area);
             else if (currentView === 'categories') renderCategories(area);
         }
@@ -349,6 +360,72 @@
                             `).join('')}
                         </div>
                     </div>
+                </div>
+            `;
+        }
+
+        function renderDispatch(el) {
+            const clusters = {};
+            const activeOrders = ORDERS.filter(o => ['Pending', 'Packing', 'Shipped'].includes(o.status));
+            
+            activeOrders.forEach(o => {
+                const area = o.address.street.split(',')[0].trim();
+                if (!clusters[area]) clusters[area] = { count: 0, orders: [] };
+                clusters[area].count++;
+                clusters[area].orders.push(o);
+            });
+
+            const sortedAreas = Object.entries(clusters).sort((a,b) => b[1].count - a[1].count);
+            const topArea = sortedAreas[0] ? sortedAreas[0][0] : "No Active Orders";
+
+            el.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+                    <div class="lg:col-span-2 card p-12 bg-orange-500/5 border-orange-500/20 relative overflow-hidden">
+                        <div class="z-10 relative">
+                            <p class="text-[10px] font-black uppercase text-orange-500 tracking-[0.3em] mb-4">Tactical Recommendation</p>
+                            <h3 class="h1 italic text-5xl mb-6">BICYCLE HUB: ${topArea}</h3>
+                            <p class="text-white/40 text-sm max-w-xl leading-relaxed">Cluster density is highest in this area. Park your bicycle near the central landmark of ${topArea} for sub-3 minute delivery times.</p>
+                            <button onclick="window.open('https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(topArea)}', '_blank')" class="mt-8 bg-orange-500 text-black px-8 py-4 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center gap-3">
+                                <span class="material-symbols-outlined text-sm">navigation</span> Navigate to Hub
+                            </button>
+                        </div>
+                        <div class="absolute -right-20 -bottom-20 opacity-10">
+                            <span class="material-symbols-outlined text-[300px]">directions_bike</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-10 flex flex-col justify-center items-center text-center">
+                        <p class="text-[9px] font-black uppercase text-white/30 tracking-[0.2em] mb-4">Total Active Heat</p>
+                        <h4 class="h1 italic text-7xl text-orange-500">${activeOrders.length}</h4>
+                        <p class="text-[9px] font-bold text-white/20 mt-4 uppercase">Live Delivery Load</p>
+                    </div>
+                </div>
+
+                <h4 class="h1 italic text-2xl mb-10 pb-6 border-b border-white/5">Area Demand Clusters</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                    ${sortedAreas.map(([area, data]) => `
+                        <div class="card p-8 transition-all hover:scale-[1.02] ${data.count >= 3 ? 'heat-pulse border-orange-500/50 bg-orange-500/5' : ''}">
+                            <div class="flex justify-between items-start mb-6">
+                                <div>
+                                    <h5 class="h1 italic !text-2xl">${area}</h5>
+                                    <p class="text-[9px] font-black text-white/30 uppercase tracking-widest mt-1">${data.count} Orders Processing</p>
+                                </div>
+                                <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center">
+                                    <span class="material-symbols-outlined ${data.count >= 3 ? 'text-orange-500' : 'text-white/20'}">location_on</span>
+                                </div>
+                            </div>
+                            <div class="space-y-4 mb-8">
+                                ${data.orders.slice(0, 3).map(o => `
+                                    <div class="flex justify-between items-center text-[11px] font-bold">
+                                        <span class="text-white/60">#ORD-${o.id}</span>
+                                        <span class="text-white/30">${o.address.flat}</span>
+                                    </div>
+                                `).join('')}
+                                ${data.count > 3 ? `<p class="text-[9px] font-black text-orange-500/50 uppercase tracking-widest">+ ${data.count - 3} more orders</p>` : ''}
+                            </div>
+                            <button onclick="window.open('https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(area)}', '_blank')" class="w-full py-4 border border-white/10 rounded-xl text-[9px] font-black uppercase hover:bg-white hover:text-black transition-all">View Cluster Map</button>
+                        </div>
+                    `).join('') || '<div class="col-span-full py-20 text-center opacity-10 h1 text-4xl italic uppercase">Quiet Streets... No Active Demand</div>'}
                 </div>
             `;
         }
