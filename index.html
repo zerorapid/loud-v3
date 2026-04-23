@@ -314,17 +314,11 @@
 
             if (data) {
                 DATA = data.map(p => ({
-                    id: p.id,
-                    name: p.name,
-                    mrp: p.price,
-                    d: p.discount_price,
-                    cat: p.category || 'Pantry',
-                    desc: p.description,
-                    stock: p.stock ?? 10,
-                    img: [p.image_url || 'https://cdn-icons-png.flaticon.com/512/706/706164.png'],
+                    ...p, // Keep all original DB fields (image_url, price, discount_price, category, description, stock, id, name)
+                    // Add AI/Intelligence layers on top
                     tags: INTEL[p.id]?.tags || [p.name.toLowerCase()],
                     profit_score: INTEL[p.id]?.profit || 1,
-                    sourcing_note: INTEL[p.id]?.note || "Standard Sourcing"
+                    sourcing_note: p.sourcing_note || INTEL[p.id]?.note || "Standard Sourcing"
                 }));
                 console.log(`LOUD: Loaded ${DATA.length} products.`);
                 loading = false;
