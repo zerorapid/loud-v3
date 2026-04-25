@@ -9,7 +9,8 @@ import CustomerList from '@/components/admin/CustomerList';
 import AnalyticsView from '@/components/admin/AnalyticsView';
 import NotificationManager from '@/components/admin/NotificationManager';
 import MarketIntelligence from '@/components/admin/MarketIntelligence';
-import { Lock, ShieldCheck, BarChart3, Package, Users, Activity, Bell, Search, Plus, ExternalLink, LogOut, Radio } from 'lucide-react';
+import SupportManager from '@/components/admin/SupportManager';
+import { Lock, ShieldCheck, BarChart3, Package, Users, Activity, Bell, Search, Plus, ExternalLink, LogOut, Radio, MessageSquare } from 'lucide-react';
 
 export default function AdminPage() {
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -20,7 +21,8 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [stats, setStats] = useState({ revenue: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'orders' | 'inventory' | 'customers' | 'analytics' | 'alerts' | 'spy'>('orders');
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'orders' | 'inventory' | 'customers' | 'analytics' | 'alerts' | 'spy' | 'support'>('orders');
   const [searchQuery, setSearchQuery] = useState('');
 
     if (auth === 'true') {
@@ -156,6 +158,7 @@ export default function AdminPage() {
             { id: 'inventory', label: 'Product Catalog', icon: Package, count: products.length },
             { id: 'customers', label: 'Customer Intelligence', icon: Users, count: 'LOG' },
             { id: 'analytics', label: 'Sales Analytics', icon: BarChart3, count: '₹' },
+            { id: 'support', label: 'Support Command', icon: MessageSquare, count: 'LIVE' },
             { id: 'alerts', label: 'System Notifications', icon: Bell, count: '!' }
           ].map((tab) => (
             <button 
@@ -212,9 +215,9 @@ export default function AdminPage() {
         {[
           { id: 'orders', icon: Activity },
           { id: 'inventory', icon: Package },
+          { id: 'support', icon: MessageSquare },
           { id: 'analytics', icon: BarChart3 },
-          { id: 'customers', icon: Users },
-          { id: 'alerts', icon: Bell }
+          { id: 'customers', icon: Users }
         ].map((tab) => (
           <button 
             key={tab.id}
@@ -290,6 +293,7 @@ export default function AdminPage() {
               activeTab === 'inventory' ? <InventoryManager products={products} onUpdate={fetchData} /> :
               activeTab === 'customers' ? <CustomerList searchQuery={searchQuery} /> :
               activeTab === 'analytics' ? <AnalyticsView /> :
+              activeTab === 'support' ? <SupportManager /> :
               <NotificationManager />
             )}
           </div>

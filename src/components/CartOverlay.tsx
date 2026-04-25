@@ -207,28 +207,44 @@ export default function CartOverlay() {
 
               {/* COUPON SECTION - Tactic 51, 55 */}
               <div className="bg-white border-thin p-5 space-y-4">
-                <div className="flex items-center gap-3">
-                  <Ticket size={20} className="text-black/40" />
-                  <h4 className="text-caption">Coupons & Offers</h4>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Ticket size={20} className="text-black/40" />
+                    <h4 className="text-caption">Available Offers</h4>
+                  </div>
+                  <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">3 Active</span>
                 </div>
-                <div className="flex gap-2">
+                
+                {/* SELECTABLE COUPON CHIPS */}
+                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                  {['DISCO100', 'FLAT30', 'FREESHIP'].map((code) => (
+                    <button 
+                      key={code}
+                      onClick={() => setAppliedCoupon(code)}
+                      className={`flex-shrink-0 px-4 py-2 border-2 border-dashed font-black text-[11px] uppercase tracking-widest transition-all ${appliedCoupon === code ? 'border-black bg-black text-white' : 'border-black/10 bg-uber-gray/50 text-black/40 hover:border-black/30'}`}
+                    >
+                      {code}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex gap-2 pt-2">
                   <input 
                     type="text" 
-                    placeholder="Enter Code" 
+                    placeholder="Enter Custom Code" 
                     className="flex-1 bg-uber-gray px-4 h-12 text-sm font-black uppercase tracking-widest placeholder:text-black/20"
                     value={appliedCoupon || ''}
                     onChange={(e) => setAppliedCoupon(e.target.value.toUpperCase())}
                   />
                   <button 
-                    onClick={() => setAppliedCoupon('FLAT30')}
-                    className="px-6 h-12 bg-uber-gray border border-black/5 text-caption text-black hover:bg-black hover:text-white transition-all active-scale"
+                    className="px-6 h-12 bg-black text-white text-caption transition-all active-scale"
                   >
                     Apply
                   </button>
                 </div>
-                {appliedCoupon === 'FLAT30' && (
+                {appliedCoupon && (
                   <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200">
-                    <span className="text-xs font-black text-green-700">'FLAT30' applied! You saved ₹{discountAmount}</span>
+                    <span className="text-xs font-black text-green-700">'{appliedCoupon}' activated! You saved ₹{discountAmount}</span>
                     <button onClick={() => setAppliedCoupon(null)} className="text-green-700"><X size={14} /></button>
                   </div>
                 )}
@@ -268,13 +284,13 @@ export default function CartOverlay() {
                     </div>
                   )}
                   <div className="flex justify-between text-body-secondary">
-                    <span>Delivery fee</span>
+                    <span>Logistics fee</span>
                     <span className={deliveryCharge === 0 ? "text-blue-600 font-bold" : "text-black font-bold"}>
                       {deliveryCharge === 0 ? "FREE" : `₹${deliveryCharge}`}
                     </span>
                   </div>
                   <div className="flex justify-between text-body-secondary">
-                    <span>Handling & Packaging</span>
+                    <span>Service & Packaging</span>
                     <span className="text-black font-bold">₹{handlingCharge + platformFee + carryBagCharge}</span>
                   </div>
                   <div className="flex justify-between text-body-secondary">

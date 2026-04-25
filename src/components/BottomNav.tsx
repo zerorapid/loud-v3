@@ -32,7 +32,7 @@ export default function BottomNav() {
         className={`${navItemClass} ${pathname === '/' ? 'text-black' : 'text-black/30'}`}
       >
         <Home size={24} strokeWidth={pathname === '/' ? 3 : 2} />
-        <span className="text-[10px] font-black uppercase tracking-widest">Store</span>
+        <span className="text-[10px] font-black uppercase tracking-widest">Market</span>
       </button>
 
       {/* 1 RUPEE DEALS - Replacing Search */}
@@ -76,7 +76,7 @@ export default function BottomNav() {
         className={`${navItemClass} text-black/30`}
       >
         <div className="w-6 h-6 border-2 border-current flex items-center justify-center text-[10px] font-black">AI</div>
-        <span className="text-[10px] font-black uppercase tracking-widest">Smart</span>
+        <span className="text-[10px] font-black uppercase tracking-widest">Discover</span>
       </button>
 
     </nav>
