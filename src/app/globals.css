@@ -69,7 +69,7 @@ html, body {
 body {
   background: var(--surface-default);
   color: var(--text-primary);
-  font-family: "Metropolis", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: "Metropolis", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: var(--text-base);
   line-height: 1.5; /* WCAG 1.4.12 requirement */
   letter-spacing: -0.015em; /* Metropolis benefits from tight tracking in headers, kept moderate here */
