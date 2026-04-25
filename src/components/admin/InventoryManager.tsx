@@ -95,18 +95,18 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
         {!showAddForm && !editingProduct && (
           <button 
             onClick={() => setShowAddForm(true)}
-            className="flex-1 h-16 bg-white border-2 border-dashed border-black/10 flex items-center justify-center gap-3 text-caption text-black hover:border-black transition-all active-scale shadow-sm"
+            className="flex-1 h-20 bg-white border border-black/10 flex items-center justify-center gap-4 text-[13px] font-black uppercase tracking-widest text-black hover:border-black transition-all active-scale shadow-sm"
           >
             <Plus size={24} />
-            Initialize New Product
+            Register New SKU
           </button>
         )}
         <button 
           onClick={() => setFilterDeals(!filterDeals)}
-          className={`px-8 h-16 border-2 flex items-center justify-center gap-3 text-caption transition-all active-scale shadow-sm ${filterDeals ? 'bg-green-600 border-green-600 text-white' : 'bg-white border-black/10 text-black/40'}`}
+          className={`px-10 h-20 border flex items-center justify-center gap-4 text-[13px] font-black uppercase tracking-widest transition-all active-scale shadow-sm ${filterDeals ? 'bg-green-600 border-green-600 text-white' : 'bg-white border-black/10 text-black/40'}`}
         >
-          <Zap size={20} fill={filterDeals ? "white" : "none"} />
-          {filterDeals ? 'Viewing ₹1 Deals' : 'Filter ₹1 Deals'}
+          <Zap size={22} fill={filterDeals ? "white" : "none"} />
+          {filterDeals ? 'Active Promotions Only' : 'Filter Promotions'}
         </button>
       </div>
 
@@ -236,11 +236,11 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
       )}
 
       {/* TABLE HEADER - HIDDEN ON MOBILE */}
-      <div className="hidden lg:grid grid-cols-12 gap-4 px-8 py-4 bg-black text-white text-[10px] font-semibold uppercase tracking-widest">
-        <div className="col-span-5">Product Intelligence</div>
+      <div className="hidden lg:grid grid-cols-12 gap-4 px-8 py-5 bg-black text-white text-[11px] font-black uppercase tracking-[0.2em]">
+        <div className="col-span-5">Product Details / SKU</div>
         <div className="col-span-2 text-center">Category</div>
-        <div className="col-span-2 text-center">Unit Price</div>
-        <div className="col-span-3 text-right">Inventory Logic</div>
+        <div className="col-span-2 text-center">Pricing Ledger</div>
+        <div className="col-span-3 text-right">Inventory / Stock Control</div>
       </div>
 
       {/* PRODUCT LIST - Tactic 47, 49 */}
@@ -255,16 +255,16 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
             
             {/* PRODUCT INFO */}
             <div className="col-span-5 flex items-center gap-8">
-              <div className="w-16 h-16 bg-white border border-black/10 flex items-center justify-center p-2 transition-transform group-hover:scale-105">
+              <div className="w-20 h-20 bg-white border border-black/10 flex items-center justify-center p-2 transition-transform group-hover:scale-105">
                 <img src={p.image_url} className="max-w-full max-h-full object-contain mix-blend-multiply" alt=""/>
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-[16px] font-semibold uppercase tracking-tight truncate">{p.name}</h4>
-                <p className="text-[12px] font-semibold text-black/50 uppercase tracking-widest mt-1">
-                  {p.weight}g / ml • Cost: ₹{p.sourcing_cost || 0}
+                <h4 className="text-[18px] font-black uppercase tracking-tight truncate">{p.name}</h4>
+                <p className="text-[13px] font-bold text-black/40 uppercase tracking-widest mt-1.5">
+                  {p.weight}g / ml • Sourcing Cost: ₹{p.sourcing_cost || 0}
                 </p>
                 {p.discount_price === 1 && (
-                  <span className="inline-block mt-2 bg-green-600 text-white text-[10px] px-2 py-0.5 font-semibold uppercase tracking-widest">₹1 DEAL</span>
+                  <span className="inline-block mt-3 bg-green-600 text-white text-[11px] px-3 py-1 font-black uppercase tracking-widest">Active Promotion</span>
                 )}
               </div>
             </div>
@@ -276,10 +276,10 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
 
             {/* PRICE DISPLAY */}
             <div className="col-span-2 text-center flex lg:block justify-between items-center">
-              <span className="lg:hidden text-[10px] font-semibold text-black/40 uppercase tracking-widest">Price Point</span>
+              <span className="lg:hidden text-[11px] font-black text-black/40 uppercase tracking-widest">Unit Price</span>
               <div className="flex flex-col lg:items-center">
-                <span className={`text-[24px] font-semibold tracking-tighter ${p.discount_price === 1 ? 'text-green-600' : 'text-black'}`}>₹{p.discount_price}</span>
-                <span className="text-[11px] font-semibold text-black/30 line-through">MRP ₹{p.price}</span>
+                <span className={`text-[28px] font-black tracking-tighter ${p.discount_price === 1 ? 'text-green-700' : 'text-black'}`}>₹{p.discount_price}</span>
+                <span className="text-[12px] font-bold text-black/20 line-through">MRP ₹{p.price}</span>
               </div>
             </div>
 
@@ -289,22 +289,22 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
                 <button 
                   onClick={() => updateStock(p.id, -1)}
                   aria-label="Decrease stock"
-                  className="w-10 h-10 flex items-center justify-center hover:bg-uber-gray active-scale transition-all"
+                  className="w-12 h-12 flex items-center justify-center hover:bg-uber-gray active-scale transition-all"
                 >
-                  <Minus size={16} />
+                  <Minus size={18} />
                 </button>
-                <div className="flex items-center gap-2 px-1">
-                  <div className={`w-10 text-center font-semibold text-[16px] ${p.stock < 5 ? 'text-red-600' : 'text-black'}`}>
+                <div className="flex items-center gap-3 px-2">
+                  <div className={`w-12 text-center font-black text-[20px] ${p.stock < 5 ? 'text-red-600' : 'text-black'}`}>
                     {p.stock}
                   </div>
-                  {p.stock < 5 && <span className="text-red-600 text-[14px]" aria-hidden="true">⚠️</span>}
+                  {p.stock < 5 && <span className="text-red-600 text-[18px]" aria-hidden="true">⚠️</span>}
                 </div>
                 <button 
                   onClick={() => updateStock(p.id, 1)}
                   aria-label="Increase stock"
-                  className="w-10 h-10 flex items-center justify-center hover:bg-uber-gray active-scale transition-all"
+                  className="w-12 h-12 flex items-center justify-center hover:bg-uber-gray active-scale transition-all"
                 >
-                  <Plus size={16} />
+                  <Plus size={18} />
                 </button>
               </div>
               

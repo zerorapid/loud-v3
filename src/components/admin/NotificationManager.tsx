@@ -62,9 +62,9 @@ export default function NotificationManager() {
     <div className="space-y-8">
       {/* SEND FORM */}
       <div className="bg-white border-2 border-black p-8 shadow-xl">
-        <div className="flex items-center gap-3 border-b border-uber-gray pb-6 mb-6">
-          <Send size={24} />
-          <h2 className="text-heading-3 uppercase">Dispatch Alert</h2>
+        <div className="flex items-center gap-4 border-b border-uber-gray pb-6 mb-8">
+          <Send size={28} />
+          <h2 className="text-[24px] font-black uppercase tracking-tighter">Broadcast Center</h2>
         </div>
 
         <form onSubmit={handleSend} className="space-y-6">
@@ -73,18 +73,18 @@ export default function NotificationManager() {
             <button 
               type="button"
               onClick={() => setTargetType('all')}
-              className={`flex-1 py-3 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${targetType === 'all' ? 'bg-black text-white shadow-lg' : 'text-black/40 hover:text-black'}`}
+              className={`flex-1 py-4 flex items-center justify-center gap-3 text-[12px] font-black uppercase tracking-widest transition-all ${targetType === 'all' ? 'bg-black text-white shadow-lg' : 'text-black/40 hover:text-black'}`}
             >
-              <Users size={14} />
-              Broadcast to All
+              <Users size={18} />
+              Global Broadcast
             </button>
             <button 
               type="button"
               onClick={() => setTargetType('specific')}
-              className={`flex-1 py-3 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${targetType === 'specific' ? 'bg-black text-white shadow-lg' : 'text-black/40 hover:text-black'}`}
+              className={`flex-1 py-4 flex items-center justify-center gap-3 text-[12px] font-black uppercase tracking-widest transition-all ${targetType === 'specific' ? 'bg-black text-white shadow-lg' : 'text-black/40 hover:text-black'}`}
             >
-              <User size={14} />
-              Specific User
+              <User size={18} />
+              Targeted Transmission
             </button>
           </div>
 
@@ -155,10 +155,10 @@ export default function NotificationManager() {
           <button 
             type="submit" 
             disabled={isSubmitting}
-            className={`w-full h-14 text-white text-caption flex items-center justify-center gap-3 active-scale transition-all ${targetType === 'all' ? 'bg-black' : 'bg-green-600'}`}
+            className={`w-full h-16 text-white text-[13px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-4 active-scale transition-all ${targetType === 'all' ? 'bg-black' : 'bg-green-600'}`}
           >
-            {isSubmitting ? <Loader2 className="animate-spin" /> : <Send size={20} />}
-            {targetType === 'all' ? 'Broadcast to Everyone' : 'Direct Message User'}
+            {isSubmitting ? <Loader2 className="animate-spin" /> : <Send size={22} />}
+            {targetType === 'all' ? 'Execute Global Broadcast' : 'Execute Targeted Pulse'}
           </button>
         </form>
       </div>
@@ -172,19 +172,19 @@ export default function NotificationManager() {
           ) : notifications.map(n => (
             <div key={n.id} className={`border-thin p-6 flex items-center justify-between group hover:border-black transition-all ${n.target_phone ? 'bg-green-50/50' : 'bg-white'}`}>
               <div className="flex items-center gap-6">
-                <div className="w-12 h-12 bg-white border-thin flex items-center justify-center">
-                  {n.target_phone ? <User size={20} className="text-green-600" /> : <Users size={20} />}
+                <div className="w-14 h-14 bg-white border border-black/10 flex items-center justify-center">
+                  {n.target_phone ? <User size={24} className="text-green-600" /> : <Users size={24} />}
                 </div>
                 <div>
-                  <div className="flex items-center gap-3">
-                    <h4 className="text-body-primary font-black uppercase">{n.title}</h4>
+                  <div className="flex items-center gap-4">
+                    <h4 className="text-[14px] font-black uppercase tracking-tight">{n.title}</h4>
                     {n.target_phone ? (
-                      <span className="text-[10px] bg-green-600 text-white px-2 py-0.5 font-bold">TO: {n.target_phone}</span>
+                      <span className="text-[11px] bg-green-600 text-white px-3 py-1 font-black uppercase tracking-widest">Target: {n.target_phone}</span>
                     ) : (
-                      <span className="text-[10px] bg-uber-gray px-2 py-0.5 font-bold">BROADCAST</span>
+                      <span className="text-[11px] bg-black text-white px-3 py-1 font-black uppercase tracking-widest">Global</span>
                     )}
                   </div>
-                  <p className="text-body-secondary text-xs opacity-60 mt-1">{n.message}</p>
+                  <p className="text-[13px] font-bold text-black/40 mt-1.5">{n.message}</p>
                 </div>
               </div>
               <button 
