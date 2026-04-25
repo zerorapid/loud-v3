@@ -109,23 +109,7 @@ export default function AdminPage() {
           <h1 className="text-[14px] font-semibold uppercase tracking-[0.2em] leading-tight text-black/40">DISCO<br/>COMMAND</h1>
         </div>
 
-        {/* INTEGRATED VERTICAL KPIs - METROPOLIS PRECISION CLARITY */}
-        <div className="p-6 space-y-4 border-b border-black/10 bg-uber-gray/10">
-          <div className="bg-white p-6 border-l-4 border-green-600 shadow-md">
-            <p className="text-[13px] font-medium uppercase tracking-widest text-black mb-2">Today's Revenue</p>
-            <h2 className="text-[32px] font-semibold tracking-tighter text-black">₹{stats.revenue.toLocaleString()}</h2>
-          </div>
-          <div className="bg-white p-6 border-l-4 border-black shadow-md">
-            <p className="text-[13px] font-medium uppercase tracking-widest text-black mb-2">Today's Orders</p>
-            <h2 className="text-[32px] font-semibold tracking-tighter text-black">{stats.orders}</h2>
-          </div>
-          <div className="bg-white p-6 border-l-4 border-red-600 shadow-md">
-            <p className="text-[13px] font-medium uppercase tracking-widest text-black mb-2">Low Stock Alerts</p>
-            <h2 className={`text-[32px] font-semibold tracking-tighter ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : 'text-black'}`}>
-              {products.filter(p => p.stock < 5).length}
-            </h2>
-          </div>
-        </div>
+
 
         <nav className="flex-1 overflow-y-auto py-6" role="tablist">
           {[
@@ -168,10 +152,38 @@ export default function AdminPage() {
       </div>
 
       {/* CONTENT AREA */}
-      <div className="flex-1 h-screen overflow-y-auto bg-uber-gray/10">
+      <div className="flex-1 h-screen overflow-y-auto bg-uber-gray/10 scroll-smooth">
+        {/* STICKY KPI DASHBOARD */}
+        <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-black/10 px-6 md:px-16 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl">
+            <div className="flex flex-col">
+              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-black/40 mb-1">Today's Revenue</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-black tracking-tighter">₹{stats.revenue.toLocaleString()}</span>
+                <span className="text-[10px] font-bold text-green-600 uppercase tracking-widest">+12.5%</span>
+              </div>
+            </div>
+            <div className="flex flex-col border-l border-black/5 md:pl-8">
+              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-black/40 mb-1">Total Orders</span>
+              <span className="text-3xl font-black tracking-tighter">{stats.orders}</span>
+            </div>
+            <div className="flex flex-col border-l border-black/5 md:pl-8">
+              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-black/40 mb-1">Stock Alerts</span>
+              <div className="flex items-center gap-3">
+                <span className={`text-3xl font-black tracking-tighter ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : ''}`}>
+                  {products.filter(p => p.stock < 5).length}
+                </span>
+                {products.filter(p => p.stock < 5).length > 0 && (
+                  <span className="bg-red-600 text-white text-[9px] font-black px-2 py-0.5 animate-pulse">CRITICAL</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="pt-12 pb-32 px-6 md:px-16 max-w-6xl">
           <div className="mb-12">
-            <h2 className="text-[32px] font-semibold uppercase tracking-tighter text-black mb-2">{activeTab.toUpperCase()}</h2>
+            <h2 className="text-[32px] font-black uppercase tracking-tighter text-black mb-2">{activeTab.toUpperCase()}</h2>
             <div className="w-12 h-1 bg-black"></div>
           </div>
 
