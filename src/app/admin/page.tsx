@@ -102,8 +102,8 @@ export default function AdminPage() {
 
   return (
     <main className="min-h-screen bg-uber-gray/30 flex flex-col md:flex-row overflow-hidden">
-      {/* VERTICAL SIDEBAR - ERP MODE */}
-      <div className="w-full md:w-80 bg-white border-r border-black/10 flex flex-col sticky top-0 h-auto md:h-screen z-30 shadow-2xl">
+      {/* SIDEBAR - DESKTOP ONLY */}
+      <div className="hidden md:flex w-80 bg-white border-r border-black/10 flex-col sticky top-0 h-screen z-30 shadow-2xl">
         <div className="p-8 border-b border-black/10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-black text-white flex items-center justify-center font-black text-xl">D</div>
@@ -117,7 +117,7 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-8" role="tablist">
+        <nav className="flex-1 overflow-y-auto py-8">
           {[
             { id: 'orders', label: 'Activity Pulse', icon: Activity, count: orders.length },
             { id: 'inventory', label: 'Inventory Hub', icon: Package, count: products.length },
@@ -164,44 +164,61 @@ export default function AdminPage() {
         </div>
       </div>
 
+      {/* MOBILE BOTTOM NAV */}
+      <div className="md:hidden fixed bottom-0 left-0 w-full bg-black text-white z-50 flex items-center justify-around h-20 px-4 border-t border-white/10 pb-env">
+        {[
+          { id: 'orders', icon: Activity },
+          { id: 'inventory', icon: Package },
+          { id: 'analytics', icon: BarChart3 },
+          { id: 'customers', icon: Users },
+          { id: 'alerts', icon: Bell }
+        ].map((tab) => (
+          <button 
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            className={`flex flex-col items-center justify-center gap-1 transition-all ${activeTab === tab.id ? 'text-green-400' : 'text-white/40'}`}
+          >
+            <tab.icon size={24} />
+            <span className="text-[8px] font-black uppercase tracking-widest">{tab.id}</span>
+          </button>
+        ))}
+      </div>
+
       {/* CONTENT AREA */}
       <div className="flex-1 h-screen overflow-y-auto bg-uber-gray/10 scroll-smooth">
         {/* STICKY KPI DASHBOARD */}
-        <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-black/10 px-6 md:px-16 py-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 max-w-6xl">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-16 flex-1">
+        <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-black/10 px-4 md:px-16 py-4 md:py-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-8 max-w-6xl">
+            <div className="grid grid-cols-3 gap-4 md:gap-16 flex-1">
               <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 mb-1">Today's Revenue</span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-black tracking-tighter">₹{stats.revenue.toLocaleString()}</span>
-                  <span className="text-[10px] font-black text-green-600 uppercase tracking-widest bg-green-50 px-1">+12%</span>
+                <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-black/40 mb-1 truncate">Revenue</span>
+                <div className="flex items-baseline gap-1 md:gap-2">
+                  <span className="text-xl md:text-3xl font-black tracking-tighter">₹{stats.revenue.toLocaleString()}</span>
                 </div>
               </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 mb-1">Total Orders</span>
-                <span className="text-3xl font-black tracking-tighter">{stats.orders}</span>
+              <div className="flex flex-col border-l border-black/5 pl-4 md:pl-0 md:border-none">
+                <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-black/40 mb-1 truncate">Orders</span>
+                <span className="text-xl md:text-3xl font-black tracking-tighter">{stats.orders}</span>
               </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 mb-1">Critical Alerts</span>
-                <div className="flex items-center gap-3">
-                  <span className={`text-3xl font-black tracking-tighter ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : ''}`}>
-                    {products.filter(p => p.stock < 5).length}
-                  </span>
-                </div>
+              <div className="flex flex-col border-l border-black/5 pl-4 md:pl-0 md:border-none">
+                <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-black/40 mb-1 truncate">Alerts</span>
+                <span className={`text-xl md:text-3xl font-black tracking-tighter ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : ''}`}>
+                  {products.filter(p => p.stock < 5).length}
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="relative group md:w-64">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-black/20 group-hover:text-black transition-colors" size={16} />
+            <div className="flex items-center gap-2">
+              <div className="relative group flex-1 md:w-64">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-black/20" size={14} />
                 <input 
                   type="text"
-                  placeholder="Global ERP Search..."
-                  className="w-full h-12 bg-uber-gray border border-transparent px-12 text-xs font-bold uppercase tracking-widest placeholder:text-black/20 focus:bg-white focus:border-black transition-all outline-none"
+                  placeholder="ERP Search"
+                  className="w-full h-10 md:h-12 bg-uber-gray border border-transparent px-10 text-[10px] md:text-xs font-bold uppercase tracking-widest placeholder:text-black/20 focus:bg-white focus:border-black transition-all outline-none"
                 />
               </div>
-              <button className="h-12 w-12 bg-black text-white flex items-center justify-center hover:bg-green-600 transition-all active-scale">
-                <Plus size={20} />
+              <button className="h-10 w-10 md:h-12 md:w-12 bg-black text-white flex items-center justify-center hover:bg-green-600 transition-all active-scale">
+                <Plus size={18} />
               </button>
             </div>
           </div>
