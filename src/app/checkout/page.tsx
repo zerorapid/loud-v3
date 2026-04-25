@@ -48,7 +48,7 @@ export default function CheckoutPage() {
       }
 
       // Calculate Weight
-      const weight = cart.reduce((acc, item) => acc + (item.weight * item.quantity), 0);
+      const weight = cart.reduce((acc, item) => acc + (Number(item.weight) * item.quantity), 0);
       setTotalWeight(weight / 1000); // Convert to KG
     }
     initCheckout();

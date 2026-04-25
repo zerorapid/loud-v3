@@ -17,6 +17,7 @@ export default function AdminPage() {
   const [error, setError] = useState('');
   
   const [products, setProducts] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [stats, setStats] = useState({ revenue: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'orders' | 'inventory' | 'customers' | 'analytics' | 'alerts' | 'spy'>('orders');
@@ -39,6 +40,7 @@ export default function AdminPage() {
     if (prodRes.data) setProducts(prodRes.data);
     
     if (orderRes.data) {
+      setOrders(orderRes.data);
       const revenue = orderRes.data.reduce((acc, curr) => acc + curr.total_amount, 0);
       setStats({ revenue, orders: orderRes.data.length });
     }
@@ -98,7 +100,6 @@ export default function AdminPage() {
     );
   }
 
-  return (
   return (
     <main className="min-h-screen bg-uber-gray/30 flex flex-col md:flex-row overflow-hidden">
       {/* VERTICAL SIDEBAR - ERP MODE */}
@@ -191,6 +192,5 @@ export default function AdminPage() {
         </div>
       </div>
     </main>
-  );
   );
 }
