@@ -126,7 +126,7 @@ export default function Header({ onSearch }: HeaderProps) {
 
         {/* CENTER: SEARCH - Tactic 35, 37, 50 */}
         <div 
-          className={`transition-all duration-500 relative ${
+          className={`transition-all duration-500 relative hidden md:block ${
             isSearchOpen ? 'flex-1' : 'w-10 md:w-64 lg:w-96'
           }`}
         >
@@ -146,27 +146,6 @@ export default function Header({ onSearch }: HeaderProps) {
               className={`absolute left-3 transition-colors ${isSearchOpen ? 'text-black' : 'text-black/30'}`} 
               size={18} 
             />
-            
-            {/* Mobile Search Trigger */}
-            <button 
-              className={`md:hidden absolute inset-0 flex items-center justify-center ${isSearchOpen ? 'hidden' : 'flex'}`}
-              onClick={() => setIsSearchOpen(true)}
-            >
-              <Search size={24} className="text-black" />
-            </button>
-
-            {isSearchOpen && (
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsSearchOpen(false);
-                  setSearchQuery('');
-                }}
-                className="absolute right-3 w-6 h-6 flex items-center justify-center hover:bg-uber-gray"
-              >
-                <X size={16} />
-              </button>
-            )}
           </div>
         </div>
 
@@ -202,7 +181,7 @@ export default function Header({ onSearch }: HeaderProps) {
             {/* Account Icon */}
             <button 
               onClick={() => setIsAccountOpen(true)}
-              className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center hover:bg-uber-gray transition-colors active-scale relative"
+              className="hidden md:flex w-10 h-10 md:w-12 md:h-12 items-center justify-center hover:bg-uber-gray transition-colors active-scale relative"
             >
               <User size={24} className="text-black" />
               {user && <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full border-2 border-white" />}
@@ -211,7 +190,7 @@ export default function Header({ onSearch }: HeaderProps) {
             {/* Cart Button - Tactic 41, 51 */}
             <button 
               onClick={() => setIsCartOpen(true)}
-              className="h-10 md:h-12 bg-black text-white px-3 md:px-5 flex items-center gap-3 active-scale shadow-lg shadow-black/10"
+              className="hidden md:flex h-10 md:h-12 bg-black text-white px-3 md:px-5 items-center gap-3 active-scale shadow-lg shadow-black/10"
             >
               <ShoppingBag size={20} strokeWidth={2.5} />
               {totalItems > 0 && (

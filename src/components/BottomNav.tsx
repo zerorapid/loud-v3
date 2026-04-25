@@ -4,11 +4,11 @@ import { useCart } from '@/context/CartContext';
 import { useAccount } from '@/context/AccountContext';
 import { useUI } from '@/context/UIContext';
 import { useRouter, usePathname } from 'next/navigation';
-import { Home, Search, ShoppingBag, User, Zap, MessageCircleQuestion } from 'lucide-react';
+import { Home, Search, ShoppingBag, User, Zap } from 'lucide-react';
 
 export default function BottomNav() {
   const { totalItems, setIsCartOpen } = useCart();
-  const { setIsAccountOpen } = useAccount();
+  const { user, setIsAccountOpen } = useAccount();
   const { setIsSearchOpen } = useUI();
   const router = useRouter();
   const pathname = usePathname();
@@ -24,7 +24,7 @@ export default function BottomNav() {
   const navItemClass = "flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all active-scale";
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full h-[84px] bg-white border-t border-border z-50 md:hidden flex items-center justify-between px-6 pb-safe shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
+    <nav className="fixed bottom-0 left-0 w-full h-[84px] bg-white border-t border-border z-50 md:hidden flex items-center justify-between px-2 pb-safe shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
       
       {/* 1. MARKET */}
       <button 
@@ -47,13 +47,39 @@ export default function BottomNav() {
         <span className="text-[10px] font-black uppercase tracking-widest">Deals</span>
       </button>
 
-      {/* 3. DISCOVER */}
+      {/* 3. SEARCH */}
       <button 
         onClick={() => setIsSearchOpen(true)}
-        className={`${navItemClass} text-black/30`}
+        className={`${navItemClass} text-black/30 hover:text-black`}
       >
-        <div className="w-6 h-6 border-2 border-current flex items-center justify-center text-[10px] font-black">AI</div>
-        <span className="text-[10px] font-black uppercase tracking-widest">Discover</span>
+        <Search size={22} strokeWidth={2.5} />
+        <span className="text-[10px] font-black uppercase tracking-widest">Search</span>
+      </button>
+
+      {/* 4. ACCOUNT */}
+      <button 
+        onClick={() => setIsAccountOpen(true)}
+        className={`${navItemClass} text-black/30 hover:text-black relative`}
+      >
+        <User size={22} strokeWidth={2.5} />
+        {user && <div className="absolute top-4 right-1/2 translate-x-4 w-2 h-2 bg-green-500 rounded-full border-2 border-white" />}
+        <span className="text-[10px] font-black uppercase tracking-widest">Account</span>
+      </button>
+
+      {/* 5. CART */}
+      <button 
+        onClick={() => setIsCartOpen(true)}
+        className={`${navItemClass} text-black/30 hover:text-black relative`}
+      >
+        <div className="relative">
+          <ShoppingBag size={22} strokeWidth={2.5} />
+          {totalItems > 0 && (
+            <div className="absolute -top-2 -right-2 bg-green-500 text-black text-[9px] font-black w-4 h-4 flex items-center justify-center ring-2 ring-white">
+              {totalItems}
+            </div>
+          )}
+        </div>
+        <span className="text-[10px] font-black uppercase tracking-widest">Cart</span>
       </button>
 
     </nav>
