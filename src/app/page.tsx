@@ -46,29 +46,29 @@ export default function Home() {
     <div className="min-h-screen bg-white">
       <Header />
       
-      <main className="max-width pt-[124px] md:pt-24">
-        {/* ELITE HERO - Tactic 47, 49 */}
+      <main className="max-width pt-32 md:pt-40">
+        {/* ELITE HERO - WCAG 2.2 Optimized */}
         <section className="mb-16">
-          <div className="relative bg-black text-white p-10 lg:p-16 overflow-hidden">
+          <div className="relative bg-black text-white p-8 lg:p-20 overflow-hidden min-h-[400px] flex items-center">
             <div className="absolute top-0 right-0 w-1/2 h-full opacity-30 grayscale mix-blend-overlay">
-              <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover" />
+              <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover" alt="Industrial Logistics" />
             </div>
-            <div className="relative z-10 max-w-xl">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="material-symbols-outlined text-[28px]">shopping_bag</span>
-                <span className="text-[10px] font-black tracking-normal">Cart</span>
+            <div className="relative z-10 max-w-2xl">
+              <div className="flex items-center gap-3 mb-8">
+                <span className="material-symbols-outlined text-[32px]">shopping_bag</span>
+                <span className="text-sm font-black uppercase tracking-widest">Global Logistics</span>
               </div>
-              <h2 className="text-[48px] lg:text-[72px] font-black leading-[0.9] tracking-tighter uppercase mb-8">
-                DISCO<br/>Cart<br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/20">System</span>
-              </h2>
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 border border-white/5">
-                  <Zap size={14} className="text-yellow-400" />
-                  <span className="text-[11px] font-black uppercase tracking-widest">10 Mins</span>
+              <h1 className="text-5xl lg:text-7xl font-black leading-[0.95] tracking-tighter uppercase mb-10">
+                DISCO<br/>Cart<br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/30">System</span>
+              </h1>
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2 bg-white/10 px-5 py-3 border border-white/10">
+                  <Zap size={16} className="text-yellow-400" />
+                  <span className="text-xs font-black uppercase tracking-widest">10 Mins Delivery</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 border border-white/5">
-                  <ShieldCheck size={14} className="text-green-400" />
-                  <span className="text-[11px] font-black uppercase tracking-widest">Secured</span>
+                <div className="flex items-center gap-2 bg-white/10 px-5 py-3 border border-white/10">
+                  <ShieldCheck size={16} className="text-green-400" />
+                  <span className="text-xs font-black uppercase tracking-widest">Secured Payment</span>
                 </div>
               </div>
             </div>
@@ -80,9 +80,9 @@ export default function Home() {
         {/* CATEGORIES - Tactic 49 */}
         <section className="mb-16">
           <div className="flex items-center gap-4 mb-8">
-            <h4 className="text-[11px] font-black text-muted uppercase tracking-[0.25em] whitespace-nowrap">
+            <h2 className="text-xs font-black text-muted uppercase tracking-[0.2em] whitespace-nowrap">
               Sectors <span className="text-black ml-2">• {selectedCategory}</span>
-            </h4>
+            </h2>
             <div className="flex-1 h-[1px] bg-black/5"></div>
           </div>
           <CategoryTabs selectedCategory={selectedCategory} onSelect={setSelectedCategory} />
@@ -91,9 +91,9 @@ export default function Home() {
         {/* INVENTORY GRID - Tactic 8, 43, 50, 104 */}
         <section className="mb-32">
           <div className="flex items-center gap-4 mb-8">
-            <h4 className="text-[11px] font-black text-muted uppercase tracking-[0.25em] whitespace-nowrap">
+            <h2 className="text-xs font-black text-muted uppercase tracking-[0.2em] whitespace-nowrap">
               {searchQuery ? `Searching: ${searchQuery}` : 'Inventory Pulse'}
-            </h4>
+            </h2>
             <div className="flex-1 h-[1px] bg-black/5"></div>
           </div>
 
@@ -115,17 +115,17 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="py-24 text-center border-thin bg-uber-gray/30 animate-in fade-in duration-700">
+            <div className="py-24 text-center border-thin bg-uber-gray/30">
               <div className="w-24 h-24 bg-white flex items-center justify-center mx-auto mb-8 shadow-sm">
                 <Sparkles size={40} className="text-black/10" />
               </div>
-              <h3 className="text-[14px] font-black uppercase tracking-[0.4em] opacity-30 mb-4">No Sector Match</h3>
-              <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em] mb-12">Expand your search intelligence parameters.</p>
+              <h3 className="text-base font-black uppercase tracking-[0.3em] opacity-40 mb-4">No Sector Match</h3>
+              <p className="text-sm font-bold text-muted uppercase tracking-[0.15em] mb-12">Expand your search intelligence parameters.</p>
               
               <div className="flex flex-col gap-3 max-w-[280px] mx-auto">
                 <button 
                   onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}
-                  className="w-full h-[60px] bg-black text-white text-[11px] font-black uppercase tracking-[0.3em] active:scale-95 transition-all"
+                  className="w-full h-16 bg-black text-white text-xs font-black uppercase tracking-[0.2em] active-scale"
                 >
                   Reset Terminal
                 </button>

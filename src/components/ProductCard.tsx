@@ -70,9 +70,9 @@ export default function ProductCard({ product }: ProductProps) {
       className="group bg-white flex flex-col h-full border border-border hover:shadow-lg transition-all duration-300 cursor-pointer relative"
       onClick={() => router.push(`/product/${product.id}`)}
     >
-      {/* DISCOUNT BADGE - MINIMALIST */}
+      {/* DISCOUNT BADGE - WCAG AA Contrast */}
       {discountPercent > 0 && (
-        <div className="absolute top-2 left-0 z-20 bg-green-700 text-white font-bold text-[9px] px-2 py-0.5 shadow-sm flex items-center gap-1">
+        <div className="absolute top-4 left-0 z-20 bg-green-800 text-white font-black text-xs px-3 py-1 shadow-md uppercase tracking-wider">
           {discountPercent}% OFF
         </div>
       )}
@@ -86,55 +86,57 @@ export default function ProductCard({ product }: ProductProps) {
         />
         
         {product.stock > 0 && product.stock < 10 && (
-          <div className="absolute bottom-0 left-0 w-full bg-red-600/90 text-white text-[8px] font-bold py-0.5 px-2">
-            Only {product.stock} Left
+          <div className="absolute bottom-0 left-0 w-full bg-red-700 text-white text-xs font-black py-1 px-3 uppercase tracking-tighter">
+            Only {product.stock} Units Remaining
           </div>
         )}
       </div>
       
       {/* INFO SECTION - HIGH DENSITY */}
-      <div className="p-2 md:p-5 flex flex-col flex-1">
-        <h3 className="font-bold text-[12px] md:text-[14px] leading-[1.2] text-black line-clamp-2 mb-1 min-h-[2.4em]">
+      <div className="p-4 md:p-6 flex flex-col flex-1">
+        <h3 className="font-bold text-base leading-tight text-black line-clamp-2 mb-2 min-h-[3em]">
           {titleCase(product.name)}
         </h3>
         
-        <p className="text-[10px] md:text-[12px] font-medium text-black/40 mb-2">
+        <p className="text-sm font-medium text-muted mb-4">
           {formatWeight(product.weight)}
         </p>
         
         <div className="mt-auto">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-[14px] md:text-[18px] font-black text-black">₹{product.discount_price}</span>
+          <div className="flex items-end gap-2 mb-4">
+            <span className="text-xl md:text-2xl font-black text-black">₹{product.discount_price}</span>
             {discountPercent > 0 && (
-              <span className="text-[10px] md:text-[12px] text-black/30 line-through font-medium">₹{product.price}</span>
+              <span className="text-sm text-black/30 line-through font-medium mb-0.5">₹{product.price}</span>
             )}
           </div>
           
-          <div className="relative h-9 md:h-11 w-full overflow-hidden">
+          <div className="relative h-12 md:h-14 w-full">
             {cartItem ? (
-              <div className="absolute inset-0 flex items-center bg-green-700 text-white font-black rounded-lg animate-in fade-in zoom-in-95 duration-200">
+              <div className="absolute inset-0 flex items-center bg-green-800 text-white font-black animate-in fade-in zoom-in-95 duration-200">
                 <button 
                   onClick={(e) => { e.stopPropagation(); updateQuantity(product.id, -1); }}
-                  className="w-10 h-full hover:bg-white/10 transition-colors flex items-center justify-center border-r border-white/10"
+                  className="w-14 h-full hover:bg-white/10 transition-colors flex items-center justify-center border-r border-white/10 active-scale"
+                  aria-label="Decrease quantity"
                 >
-                  <span className="material-symbols-outlined text-[16px]">remove</span>
+                  <span className="material-symbols-outlined text-xl">remove</span>
                 </button>
-                <span className="flex-1 text-center text-[13px]">{cartItem.quantity}</span>
+                <span className="flex-1 text-center text-base">{cartItem.quantity}</span>
                 <button 
                   onClick={(e) => { e.stopPropagation(); updateQuantity(product.id, 1); }}
-                  className="w-10 h-full hover:bg-white/10 transition-colors flex items-center justify-center border-l border-white/10"
+                  className="w-14 h-full hover:bg-white/10 transition-colors flex items-center justify-center border-l border-white/10 active-scale"
+                  aria-label="Increase quantity"
                 >
-                  <span className="material-symbols-outlined text-[16px]">add</span>
+                  <span className="material-symbols-outlined text-xl">add</span>
                 </button>
               </div>
             ) : (
               <button 
                 onClick={handleAdd}
                 disabled={isAdding}
-                className={`absolute inset-0 w-full bg-white border border-green-700 text-green-700 font-bold text-[11px] rounded-lg hover:bg-green-50 transition-all flex items-center justify-center gap-1.5 ${isAdding ? 'opacity-50' : ''}`}
+                className={`absolute inset-0 w-full bg-white border-2 border-green-800 text-green-800 font-black text-xs uppercase tracking-widest hover:bg-green-50 transition-all flex items-center justify-center gap-2 active-scale ${isAdding ? 'opacity-50' : ''}`}
               >
-                <span>{isAdding ? 'Adding...' : 'Add'}</span>
-                {!isAdding && <span className="material-symbols-outlined text-[16px]">add</span>}
+                <span>{isAdding ? 'Sourcing...' : 'Add to Cart'}</span>
+                {!isAdding && <span className="material-symbols-outlined text-lg">add</span>}
               </button>
             )}
           </div>

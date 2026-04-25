@@ -64,13 +64,13 @@ export default function Header({ onSearch }: HeaderProps) {
 
   if (isAdmin) {
     return (
-      <header className="fixed top-0 left-0 w-full h-16 z-50 bg-black text-white flex items-center px-4 md:px-6 justify-between">
-        <div className="flex items-center gap-2 md:gap-3">
-          <ShieldCheck className="text-green-500 shrink-0" size={20} />
-          <h1 className="text-[14px] md:text-[18px] font-black uppercase tracking-tighter truncate">Command Center</h1>
+      <header className="fixed top-0 left-0 w-full h-16 z-50 bg-black text-white flex items-center px-6 justify-between border-b border-white/10">
+        <div className="flex items-center gap-3">
+          <ShieldCheck className="text-green-400 shrink-0" size={24} />
+          <h1 className="text-base md:text-lg font-black uppercase tracking-tight truncate">Command Center</h1>
         </div>
-        <div className="flex items-center gap-4">
-          <a href="/" className="text-[10px] md:text-[12px] font-black uppercase border-b border-white/20 hover:border-white transition-all shrink-0">Store</a>
+        <div className="flex items-center gap-6">
+          <a href="/" className="text-xs md:text-sm font-black uppercase border-b-2 border-white/20 hover:border-white transition-all shrink-0">Storefront</a>
         </div>
       </header>
     );
@@ -90,18 +90,18 @@ export default function Header({ onSearch }: HeaderProps) {
             className="flex flex-col cursor-pointer group active-scale flex-1 min-w-0"
             onClick={() => setIsLocationOpen(true)}
           >
-            <div className="flex items-center gap-1.5">
-              <span className="text-caption text-black/40">Delivery to</span>
-              <div className="bg-green-700 text-white text-[8px] font-black px-1.5 py-0.5 animate-pulse-slow flex items-center gap-1">
-                <Zap size={8} fill="white" />
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-xs font-bold text-muted uppercase tracking-wider">Delivery to</span>
+              <div className="bg-green-800 text-white text-[10px] font-black px-2 py-0.5 animate-pulse-slow flex items-center gap-1">
+                <Zap size={10} fill="white" />
                 12 MINS
               </div>
             </div>
-            <div className="flex items-center gap-1 group-hover:gap-2 transition-all">
-              <h2 className="text-[14px] md:text-[16px] font-black text-black uppercase tracking-tighter truncate">
+            <div className="flex items-center gap-1.5 group-hover:gap-2 transition-all">
+              <h2 className="text-sm md:text-base font-black text-black uppercase tracking-tight truncate">
                 {activeAddress.title}, {activeAddress.area}
               </h2>
-              <MapPin size={14} className="shrink-0 text-black/20 group-hover:text-black transition-colors" />
+              <MapPin size={16} className="shrink-0 text-black/20 group-hover:text-black transition-colors" />
             </div>
           </div>
         )}
@@ -156,15 +156,15 @@ export default function Header({ onSearch }: HeaderProps) {
         {!isSearchOpen && (
           <a 
             href="/deals"
-            className="hidden lg:flex items-center gap-3 h-12 px-4 bg-green-50 hover:bg-green-100 border border-green-200 transition-all active-scale group"
+            className="hidden lg:flex items-center gap-4 h-14 px-6 bg-green-50 hover:bg-green-100 border-2 border-green-200 transition-all active-scale group"
           >
             <div className="relative">
-              <Zap size={18} className="text-green-700" fill="currentColor" />
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-ping" />
+              <Zap size={22} className="text-green-800" fill="currentColor" />
+              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-600 rounded-full animate-ping" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-black text-green-700 uppercase leading-none">Loot Active</span>
-              <span className="text-[14px] font-black text-black uppercase tracking-tighter leading-tight">₹1 Deals</span>
+              <span className="text-xs font-black text-green-800 uppercase leading-none mb-0.5">Loot Active</span>
+              <span className="text-base font-black text-black uppercase tracking-tighter leading-tight">₹1 Deals</span>
             </div>
           </a>
         )}
