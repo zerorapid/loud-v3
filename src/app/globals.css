@@ -1,3 +1,4 @@
+@import url('https://cdn.jsdelivr.net/gh/ChrisChow/metropolisfont@master/css/metropolis.css');
 @import "tailwindcss";
 
 :root {
@@ -68,10 +69,10 @@ html, body {
 body {
   background: var(--surface-default);
   color: var(--text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: "Metropolis", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: var(--text-base);
   line-height: 1.5; /* WCAG 1.4.12 requirement */
-  letter-spacing: -0.011em; /* Inter looks best with slight tracking at base size */
+  letter-spacing: -0.015em; /* Metropolis benefits from tight tracking in headers, kept moderate here */
   padding-bottom: env(safe-area-inset-bottom);
 }
 
