@@ -21,6 +21,7 @@ export default function AdminPage() {
   const [stats, setStats] = useState({ revenue: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'orders' | 'inventory' | 'customers' | 'analytics' | 'alerts' | 'spy'>('orders');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     // Check if previously authorized in this session
@@ -214,6 +215,8 @@ export default function AdminPage() {
                 <input 
                   type="text"
                   placeholder="ERP Search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full h-10 md:h-12 bg-uber-gray border border-transparent px-10 text-[12px] md:text-[14px] font-bold uppercase tracking-widest placeholder:text-black/20 focus:bg-white focus:border-black transition-all outline-none"
                 />
               </div>
@@ -243,9 +246,9 @@ export default function AdminPage() {
             {loading ? (
               <div className="h-64 flex items-center justify-center text-[12px] font-semibold uppercase tracking-widest animate-pulse">Syncing...</div>
             ) : (
-              activeTab === 'orders' ? <OrderPulse /> : 
+              activeTab === 'orders' ? <OrderPulse searchQuery={searchQuery} /> : 
               activeTab === 'inventory' ? <InventoryManager products={products} onUpdate={fetchData} /> :
-              activeTab === 'customers' ? <CustomerList /> :
+              activeTab === 'customers' ? <CustomerList searchQuery={searchQuery} /> :
               activeTab === 'analytics' ? <AnalyticsView /> :
               <NotificationManager />
             )}

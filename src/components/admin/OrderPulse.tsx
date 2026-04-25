@@ -2,10 +2,15 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { MapPin, Phone, CheckCircle2, MessageSquare, Truck, Package, Zap, Clock, MoreVertical, CreditCard, User, Box } from 'lucide-react';
+import { MapPin, Phone, CheckCircle2, MessageSquare, Truck, Package, Zap, Clock, MoreVertical, CreditCard, User, Box, Trash2, Copy } from 'lucide-react';
 
-export default function OrderPulse() {
+interface OrderPulseProps {
+  searchQuery?: string;
+}
+
+export default function OrderPulse({ searchQuery = '' }: OrderPulseProps) {
   const [orders, setOrders] = useState<any[]>([]);
+  const [activeMenu, setActiveMenu] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -23,7 +28,7 @@ export default function OrderPulse() {
   }, []);
 
   async function fetchOrders() {
-    const { data } = await supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(20);
+    const { data } = await supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(50);
     if (data) setOrders(data);
   }
 
@@ -33,6 +38,25 @@ export default function OrderPulse() {
       setOrders(orders.map(o => o.id === id ? { ...o, status } : o));
     }
   }
+
+  async function deleteOrder(id: number) {
+    if (!confirm('Are you sure you want to terminate this order record?')) return;
+    const { error } = await supabase.from('orders').delete().eq('id', id);
+    if (!error) {
+      setOrders(orders.filter(o => o.id !== id));
+      setActiveMenu(null);
+    }
+  }
+
+  const filteredOrders = orders.filter(order => {
+    const query = searchQuery.toLowerCase();
+    const idMatch = order.id.toString().includes(query);
+    const itemMatch = order.items?.some((it: any) => it.name.toLowerCase().includes(query));
+    const addressMatch = order.address?.area?.toLowerCase().includes(query) || order.address?.name?.toLowerCase().includes(query);
+    return idMatch || itemMatch || addressMatch;
+  });
+
+  const sanitizePhone = (phone: string) => phone.replace(/\D/g, '');
 
   return (
     <div className="w-full bg-white border border-black/10">
@@ -49,10 +73,10 @@ export default function OrderPulse() {
       </div>
 
       <div className="divide-y divide-black/5">
-        {orders.map((order) => (
+        {filteredOrders.map((order) => (
           <div 
             key={order.id} 
-            className="grid grid-cols-[140px_1fr_1fr_140px_160px_140px] gap-4 px-6 py-5 items-center hover:bg-black/[0.02] transition-colors group"
+            className="grid grid-cols-[140px_1fr_1fr_140px_160px_140px] gap-4 px-6 py-5 items-center hover:bg-black/[0.02] transition-colors group relative"
           >
             {/* COL 1: PULSE & ID */}
             <div className="space-y-1">
@@ -81,7 +105,14 @@ export default function OrderPulse() {
               </div>
               <div className="flex gap-2">
                 <a href={`tel:${order.customer_phone}`} className="text-[10px] font-black text-black/40 hover:text-black uppercase tracking-widest underline decoration-black/10">Call</a>
-                <a href={`https://wa.me/${order.customer_phone}`} target="_blank" className="text-[10px] font-black text-green-600/60 hover:text-green-600 uppercase tracking-widest underline decoration-green-600/10">WhatsApp</a>
+                <a 
+                  href={`https://wa.me/${sanitizePhone(order.customer_phone || '')}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-[10px] font-black text-green-600/60 hover:text-green-600 uppercase tracking-widest underline decoration-green-600/10"
+                >
+                  WhatsApp
+                </a>
               </div>
             </div>
 
@@ -120,7 +151,7 @@ export default function OrderPulse() {
             </div>
 
             {/* COL 6: ACTIONS */}
-            <div className="flex items-center justify-end gap-2">
+            <div className="flex items-center justify-end gap-2 relative">
               {order.status === 'Packing' && (
                 <button 
                   onClick={() => updateStatus(order.id, 'Shipped')}
@@ -142,17 +173,45 @@ export default function OrderPulse() {
                   Archived
                 </div>
               )}
-              <button className="w-10 h-10 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-all">
-                <MoreVertical size={16} />
-              </button>
+              <div className="relative">
+                <button 
+                  onClick={() => setActiveMenu(activeMenu === order.id ? null : order.id)}
+                  className="w-10 h-10 border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-all"
+                >
+                  <MoreVertical size={16} />
+                </button>
+
+                {/* MORE MENU DROPDOWN */}
+                {activeMenu === order.id && (
+                  <div className="absolute right-0 top-12 w-48 bg-white border border-black shadow-2xl z-50 animate-in fade-in slide-in-from-top-2">
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(order.id.toString());
+                        setActiveMenu(null);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-black hover:bg-black hover:text-white transition-all border-b border-black/5"
+                    >
+                      <Copy size={14} />
+                      Copy Order ID
+                    </button>
+                    <button 
+                      onClick={() => deleteOrder(order.id)}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-600 hover:bg-red-600 hover:text-white transition-all"
+                    >
+                      <Trash2 size={14} />
+                      Cancel Order
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {orders.length === 0 && (
+      {filteredOrders.length === 0 && (
         <div className="py-24 flex flex-col items-center justify-center text-[12px] font-black text-black/20 uppercase tracking-widest">
-          Manifest Empty / Waiting for Pulse
+          {searchQuery ? `No matches for "${searchQuery}"` : 'Manifest Empty / Waiting for Pulse'}
         </div>
       )}
     </div>
