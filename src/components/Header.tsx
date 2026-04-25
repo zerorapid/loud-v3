@@ -91,7 +91,7 @@ export default function Header({ onSearch }: HeaderProps) {
   return (
     <header 
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b border-border bg-white/80 backdrop-blur-xl ${
-        isScrolled ? 'h-16' : 'h-20'
+        isScrolled ? 'h-16' : 'h-16 md:h-20'
       }`}
     >
       <div className="max-width h-full flex items-center justify-between gap-4">

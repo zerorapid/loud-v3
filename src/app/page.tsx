@@ -46,7 +46,7 @@ export default function Home() {
     <div className="min-h-screen bg-white">
       <Header />
       
-      <main className="max-width pt-32 md:pt-40">
+      <main className="max-width pt-24 md:pt-40">
         {/* ELITE HERO - WCAG 2.2 Optimized */}
         <section className="mb-16">
           <div className="relative bg-black text-white p-8 lg:p-20 overflow-hidden min-h-[400px] flex items-center">
@@ -58,8 +58,8 @@ export default function Home() {
                 <span className="material-symbols-outlined text-[32px]">shopping_bag</span>
                 <span className="text-sm font-black uppercase tracking-widest">Global Logistics</span>
               </div>
-              <h1 className="text-5xl lg:text-7xl font-black leading-[0.95] tracking-tighter uppercase mb-10">
-                DISCO<br/>Cart<br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/30">System</span>
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black leading-[0.95] tracking-tighter uppercase mb-10">
+                DISCO<br/>Logistics<br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/30">Intelligence</span>
               </h1>
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-2 bg-white/10 px-5 py-3 border border-white/10">
