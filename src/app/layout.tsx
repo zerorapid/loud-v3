@@ -9,6 +9,7 @@ import Overlays from "@/components/Overlays";
 export const metadata: Metadata = {
   title: "DISCO | Quick Commerce Enterprise",
   description: "Elite 10-minute delivery warehouse ecosystem.",
+  // DEPLOYMENT_PULSE: 2026-04-25T15:31:30Z
 };
 
 export default function RootLayout({

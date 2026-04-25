@@ -149,16 +149,29 @@ export default function Header({ onSearch }: HeaderProps) {
             />
             
             {isSearchOpen && (
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsSearchOpen(false);
-                  setSearchQuery('');
-                }}
-                className="absolute right-3 w-10 h-10 flex items-center justify-center hover:bg-uber-gray active:scale-90"
-              >
-                <X size={24} />
-              </button>
+              <div className="absolute top-full left-0 w-full bg-white shadow-2xl border-x border-b border-black/10 z-[150] animate-in slide-in-from-top-2 duration-200">
+                {/* Close Button on Top Right of Input */}
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsSearchOpen(false);
+                    setSearchQuery('');
+                  }}
+                  className="absolute -top-11 right-3 w-10 h-10 flex items-center justify-center hover:bg-uber-gray active:scale-90"
+                >
+                  <X size={24} />
+                </button>
+
+                {/* Search Results would render here */}
+                {searchQuery && (
+                  <div className="p-4">
+                    <p className="text-[10px] font-black uppercase text-black/30 mb-2">Results for "{searchQuery}"</p>
+                    <div className="space-y-1">
+                      <p className="text-[14px] font-bold text-black/20 italic">Catalog sync in progress...</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
