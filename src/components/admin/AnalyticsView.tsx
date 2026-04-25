@@ -58,92 +58,133 @@ export default function AnalyticsView() {
   if (!data) return <div>Error loading analytics</div>;
 
   const MetricCard = ({ icon: Icon, label, value, subtext, color = "black" }: any) => (
-    <div className="bg-white border-thin p-6 space-y-4">
-      <div className="flex justify-between items-start">
-        <div className={`p-3 bg-uber-gray text-${color}`}>
-          <Icon size={24} />
+    <div className="bg-white border-2 border-black/10 p-8 space-y-6 shadow-sm relative group overflow-hidden">
+      <div className="flex justify-between items-start relative z-10">
+        <div className={`p-4 bg-uber-gray text-${color}`}>
+          <Icon size={28} />
         </div>
         <div className="text-right">
-          <p className="text-caption text-black/40">{label}</p>
-          <h2 className="text-heading-2">₹{value.toLocaleString()}</h2>
+          <p className="text-[12px] font-black uppercase tracking-widest text-black/60 mb-1">{label}</p>
+          <h2 className="text-[32px] font-black tracking-tighter leading-none">₹{value.toLocaleString()}</h2>
         </div>
       </div>
-      {subtext && <p className="text-[11px] font-bold text-black/40 uppercase tracking-widest border-t border-uber-gray pt-4">{subtext}</p>}
+      {subtext && (
+        <div className="flex items-center gap-2 border-t border-black/10 pt-4 relative z-10">
+          <div className="w-1.5 h-1.5 rounded-full bg-black/20" />
+          <p className="text-[12px] font-bold text-black/70 uppercase tracking-widest">{subtext}</p>
+        </div>
+      )}
+      <div className="absolute -right-4 -bottom-4 opacity-[0.02] group-hover:scale-110 transition-transform duration-700 pointer-events-none" aria-hidden="true">
+        <Icon size={120} />
+      </div>
     </div>
   );
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="space-y-8 pb-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <MetricCard 
           icon={Package} 
-          label="Total Stock Investment" 
+          label="STOCK INVESTMENT" 
           value={data.stockInvestment} 
-          subtext="Value of all inventory currently in warehouse"
+          subtext="Value of all inventory in warehouse"
         />
         <MetricCard 
           icon={TrendingUp} 
-          label="Gross Revenue" 
+          label="GROSS REVENUE" 
           value={data.sales} 
-          subtext={`Total from ${data.totalOrders} successful orders`}
+          subtext={`Total from ${data.totalOrders} verified orders`}
           color="green-600"
         />
         <MetricCard 
           icon={Wallet} 
-          label="Net Earnings (Est.)" 
+          label="NET EARNINGS (EST.)" 
           value={data.sales - data.gst - data.fees} 
-          subtext="Revenue excluding GST and Operational Fees"
+          subtext="Revenue excluding all GST & Fees"
           color="blue-600"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* DISCOUNTS & OFFERS */}
-        <div className="bg-white border-thin p-8 space-y-6">
-          <div className="flex items-center gap-3 border-b border-uber-gray pb-4">
-            <Tag size={20} className="text-black/40" />
-            <h3 className="text-caption">Discount Intelligence</h3>
+        <div className="bg-white border-2 border-black/10 p-10 space-y-8 shadow-sm">
+          <div className="flex items-center gap-4 border-b-2 border-black/5 pb-6">
+            <div className="w-10 h-10 bg-black text-white flex items-center justify-center">
+              <Tag size={20} />
+            </div>
+            <h3 className="text-[14px] font-black uppercase tracking-[0.2em]">Discount Intelligence</h3>
           </div>
-          <div className="space-y-6">
+          
+          <div className="space-y-8">
             <div className="flex justify-between items-end">
               <div>
-                <p className="text-heading-2">₹{data.discount.toLocaleString()}</p>
-                <p className="text-body-secondary text-xs uppercase font-black">Total Discount Given</p>
+                <p className="text-[40px] font-black tracking-tighter leading-none mb-1">₹{data.discount.toLocaleString()}</p>
+                <p className="text-[12px] font-black text-black/60 uppercase tracking-widest flex items-center gap-2">
+                   Total Discount Burned
+                </p>
               </div>
               <div className="text-right">
-                <p className="text-heading-3">{Math.round((data.ordersWithCoupon / data.totalOrders) * 100) || 0}%</p>
-                <p className="text-body-secondary text-[10px] uppercase font-black text-green-600">Coupon Usage Rate</p>
+                <p className="text-[28px] font-black tracking-tighter leading-none text-green-600">
+                  {Math.round((data.ordersWithCoupon / data.totalOrders) * 100) || 0}%
+                </p>
+                <p className="text-[10px] font-black text-black/40 uppercase tracking-widest mt-1">Conversion Rate</p>
               </div>
             </div>
-            <div className="h-2 w-full bg-uber-gray overflow-hidden flex">
-              <div className="h-full bg-black" style={{ width: `${(data.ordersWithCoupon / data.totalOrders) * 100}%` }} />
-              <div className="h-full bg-black/10" style={{ width: `${(data.ordersWithoutCoupon / data.totalOrders) * 100}%` }} />
-            </div>
-            <div className="flex justify-between text-[10px] font-black uppercase tracking-tighter">
-              <span className="flex items-center gap-2"><div className="w-2 h-2 bg-black"></div> With Coupons ({data.ordersWithCoupon})</span>
-              <span className="flex items-center gap-2"><div className="w-2 h-2 bg-black/10"></div> Without Coupons ({data.ordersWithoutCoupon})</span>
+
+            <div className="space-y-3">
+              <div className="h-4 w-full bg-black/5 overflow-hidden flex border border-black/5">
+                <div 
+                  className="h-full bg-black transition-all duration-1000" 
+                  style={{ width: `${(data.ordersWithCoupon / data.totalOrders) * 100}%` }} 
+                  aria-label={`${data.ordersWithCoupon} orders with coupons`}
+                />
+                <div 
+                  className="h-full bg-black/30 transition-all duration-1000 border-l border-white/20" 
+                  style={{ width: `${(data.ordersWithoutCoupon / data.totalOrders) * 100}%` }} 
+                  aria-label={`${data.ordersWithoutCoupon} orders without coupons`}
+                />
+              </div>
+              <div className="flex justify-between items-center text-[12px] font-black uppercase tracking-widest">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-black" aria-hidden="true" />
+                  <span className="text-black">With Coupons ({data.ordersWithCoupon})</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-black/30" aria-hidden="true" />
+                  <span className="text-black/70">Regular Price ({data.ordersWithoutCoupon})</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* TAXES & FEES */}
-        <div className="bg-white border-thin p-8 space-y-6">
-          <div className="flex items-center gap-3 border-b border-uber-gray pb-4">
-            <Percent size={20} className="text-black/40" />
-            <h3 className="text-caption">Fees & Taxes Breakdown</h3>
+        <div className="bg-white border-2 border-black/10 p-10 space-y-8 shadow-sm">
+          <div className="flex items-center gap-4 border-b-2 border-black/5 pb-6">
+            <div className="w-10 h-10 bg-black text-white flex items-center justify-center">
+              <Percent size={20} />
+            </div>
+            <h3 className="text-[14px] font-black uppercase tracking-[0.2em]">Fees & Taxes Matrix</h3>
           </div>
+          
           <div className="space-y-4">
-            <div className="flex justify-between items-center py-2 border-b border-uber-gray border-dashed">
-              <span className="text-body-secondary font-bold uppercase text-[11px]">GST Collected (5%)</span>
-              <span className="font-black">₹{data.gst.toLocaleString()}</span>
+            <div className="flex justify-between items-center py-4 border-b border-black/5 border-dashed">
+              <div className="flex items-center gap-3">
+                <div className="w-1 h-1 bg-black/40" />
+                <span className="text-[12px] font-black text-black/70 uppercase tracking-widest">GST Collected (5%)</span>
+              </div>
+              <span className="text-[18px] font-black tracking-tighter">₹{data.gst.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-uber-gray border-dashed">
-              <span className="text-body-secondary font-bold uppercase text-[11px]">Platform & Handling Fees</span>
-              <span className="font-black">₹{data.fees.toLocaleString()}</span>
+            <div className="flex justify-between items-center py-4 border-b border-black/5 border-dashed">
+              <div className="flex items-center gap-3">
+                <div className="w-1 h-1 bg-black/40" />
+                <span className="text-[12px] font-black text-black/70 uppercase tracking-widest">Platform & Packaging Fees</span>
+              </div>
+              <span className="text-[18px] font-black tracking-tighter">₹{data.fees.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between items-center py-2 pt-4">
-              <span className="text-caption">Total Non-Inventory Income</span>
-              <span className="text-heading-3">₹{(data.gst + data.fees).toLocaleString()}</span>
+            <div className="flex justify-between items-center pt-8">
+              <span className="text-[14px] font-black uppercase tracking-[0.2em] text-black/40">Total Non-Inventory Income</span>
+              <span className="text-[32px] font-black tracking-tighter leading-none">₹{(data.gst + data.fees).toLocaleString()}</span>
             </div>
           </div>
         </div>

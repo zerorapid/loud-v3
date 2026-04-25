@@ -236,7 +236,7 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
       )}
 
       {/* TABLE HEADER - HIDDEN ON MOBILE */}
-      <div className="hidden lg:grid grid-cols-12 gap-4 px-8 py-4 bg-black text-white text-[10px] font-black uppercase tracking-widest">
+      <div className="hidden lg:grid grid-cols-12 gap-4 px-8 py-4 bg-black text-white text-[10px] font-semibold uppercase tracking-widest">
         <div className="col-span-5">Product Intelligence</div>
         <div className="col-span-2 text-center">Category</div>
         <div className="col-span-2 text-center">Unit Price</div>
@@ -244,57 +244,64 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
       </div>
 
       {/* PRODUCT LIST - Tactic 47, 49 */}
-      <div className="bg-white shadow-sm overflow-hidden">
+      <div className="bg-white shadow-xl overflow-hidden border border-black/5">
         {filteredProducts.map((p, idx) => (
           <div 
             key={p.id} 
-            className={`px-8 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center hover:bg-uber-gray/50 transition-all group ${
-              idx !== filteredProducts.length - 1 ? 'border-b border-uber-gray' : ''
+            className={`px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center hover:bg-uber-gray/30 transition-all group ${
+              idx !== filteredProducts.length - 1 ? 'border-b border-black/5' : ''
             } ${p.stock < 5 ? 'border-l-4 border-red-600' : 'border-l-4 border-transparent'}`}
           >
             
             {/* PRODUCT INFO */}
-            <div className="col-span-5 flex items-center gap-6">
-              <div className="w-16 h-16 bg-white border border-uber-gray flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
+            <div className="col-span-5 flex items-center gap-8">
+              <div className="w-16 h-16 bg-white border border-black/10 flex items-center justify-center p-2 transition-transform group-hover:scale-105">
                 <img src={p.image_url} className="max-w-full max-h-full object-contain mix-blend-multiply" alt=""/>
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-[15px] font-black uppercase tracking-tight truncate">{p.name}</h4>
-                <p className="text-[10px] font-black text-black/30 uppercase tracking-widest mt-1">
-                  {p.weight}g / ml • Sourcing: ₹{p.sourcing_cost || 0}
+                <h4 className="text-[16px] font-semibold uppercase tracking-tight truncate">{p.name}</h4>
+                <p className="text-[12px] font-semibold text-black/50 uppercase tracking-widest mt-1">
+                  {p.weight}g / ml • Cost: ₹{p.sourcing_cost || 0}
                 </p>
-                {p.discount_price === 1 && <span className="inline-block mt-1 bg-green-600 text-white text-[8px] px-2 py-0.5 font-black uppercase tracking-widest">₹1 DEAL</span>}
+                {p.discount_price === 1 && (
+                  <span className="inline-block mt-2 bg-green-600 text-white text-[10px] px-2 py-0.5 font-semibold uppercase tracking-widest">₹1 DEAL</span>
+                )}
               </div>
             </div>
 
             {/* CATEGORY */}
             <div className="col-span-2 text-center hidden lg:block">
-              <span className="px-3 py-1 bg-uber-gray text-[10px] font-black uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">{p.category}</span>
+              <span className="px-3 py-1 bg-uber-gray text-[11px] font-semibold uppercase tracking-widest text-black/60">{p.category}</span>
             </div>
 
             {/* PRICE DISPLAY */}
             <div className="col-span-2 text-center flex lg:block justify-between items-center">
-              <span className="lg:hidden text-[10px] font-black text-black/20 uppercase">Unit Price</span>
+              <span className="lg:hidden text-[10px] font-semibold text-black/40 uppercase tracking-widest">Price Point</span>
               <div className="flex flex-col lg:items-center">
-                <span className={`text-[24px] font-black tracking-tighter ${p.discount_price === 1 ? 'text-green-600' : 'text-black'}`}>₹{p.discount_price}</span>
-                <span className="text-[9px] font-black text-black/20 line-through">MRP ₹{p.price}</span>
+                <span className={`text-[24px] font-semibold tracking-tighter ${p.discount_price === 1 ? 'text-green-600' : 'text-black'}`}>₹{p.discount_price}</span>
+                <span className="text-[11px] font-semibold text-black/30 line-through">MRP ₹{p.price}</span>
               </div>
             </div>
 
             {/* ACTIONS */}
-            <div className="col-span-3 flex items-center justify-between lg:justify-end gap-6">
-              <div className="flex items-center gap-3 bg-white border border-uber-gray p-1 rounded-none">
+            <div className="col-span-3 flex items-center justify-between lg:justify-end gap-8">
+              <div className="flex items-center gap-3 bg-white border border-black/10 p-1">
                 <button 
                   onClick={() => updateStock(p.id, -1)}
+                  aria-label="Decrease stock"
                   className="w-10 h-10 flex items-center justify-center hover:bg-uber-gray active-scale transition-all"
                 >
                   <Minus size={16} />
                 </button>
-                <div className={`w-12 text-center font-black text-[16px] ${p.stock < 5 ? 'text-red-600' : 'text-black'}`}>
-                  {p.stock}
+                <div className="flex items-center gap-2 px-1">
+                  <div className={`w-10 text-center font-semibold text-[16px] ${p.stock < 5 ? 'text-red-600' : 'text-black'}`}>
+                    {p.stock}
+                  </div>
+                  {p.stock < 5 && <span className="text-red-600 text-[14px]" aria-hidden="true">⚠️</span>}
                 </div>
                 <button 
                   onClick={() => updateStock(p.id, 1)}
+                  aria-label="Increase stock"
                   className="w-10 h-10 flex items-center justify-center hover:bg-uber-gray active-scale transition-all"
                 >
                   <Plus size={16} />
@@ -303,7 +310,7 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
               
               <button 
                 onClick={() => setEditingProduct(p)}
-                className="w-14 h-14 bg-black text-white flex items-center justify-center hover:bg-green-600 transition-all active-scale"
+                className="w-14 h-14 bg-black text-white flex items-center justify-center hover:bg-black/80 transition-all active-scale"
               >
                 <Edit3 size={20} />
               </button>

@@ -99,49 +99,60 @@ export default function AdminPage() {
   }
 
   return (
+  return (
     <main className="min-h-screen bg-uber-gray/30 flex flex-col md:flex-row overflow-hidden">
-      {/* VERTICAL SIDEBAR - WCAG Optimized */}
-      <div className="w-full md:w-72 bg-white border-r border-uber-gray flex flex-col sticky top-0 h-auto md:h-screen z-30">
-        <div className="p-8 border-b border-uber-gray">
+      {/* VERTICAL SIDEBAR - ERP MODE */}
+      <div className="w-full md:w-80 bg-white border-r border-black/10 flex flex-col sticky top-0 h-auto md:h-screen z-30 shadow-2xl">
+        <div className="p-8 border-b border-black/5">
           <div className="w-12 h-12 bg-black text-white rounded-none flex items-center justify-center font-black text-2xl mb-4">D</div>
-          <h1 className="text-[14px] font-black uppercase tracking-[0.2em] leading-tight">Admin<br/>Dashboard</h1>
+          <h1 className="text-[14px] font-semibold uppercase tracking-[0.2em] leading-tight text-black/40">DISCO<br/>COMMAND</h1>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-6" role="tablist" aria-label="Admin Navigation">
+        {/* INTEGRATED VERTICAL KPIs - HIGH VISIBILITY */}
+        <div className="p-6 space-y-4 border-b border-black/10 bg-uber-gray/10">
+          <div className="bg-white p-5 border-l-4 border-green-600 shadow-md">
+            <p className="text-[12px] font-bold uppercase tracking-widest text-black/80 mb-2">Today's Revenue</p>
+            <h2 className="text-[28px] font-semibold tracking-tighter text-black">₹{stats.revenue.toLocaleString()}</h2>
+          </div>
+          <div className="bg-white p-5 border-l-4 border-black shadow-md">
+            <p className="text-[12px] font-bold uppercase tracking-widest text-black/80 mb-2">Order Velocity</p>
+            <h2 className="text-[28px] font-semibold tracking-tighter text-black">{stats.orders}</h2>
+          </div>
+          <div className="bg-white p-5 border-l-4 border-red-600 shadow-md">
+            <p className="text-[12px] font-bold uppercase tracking-widest text-black/80 mb-2">Stock Alerts</p>
+            <h2 className={`text-[28px] font-semibold tracking-tighter ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : 'text-black'}`}>
+              {products.filter(p => p.stock < 5).length}
+            </h2>
+          </div>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto py-6" role="tablist">
           {[
-            { id: 'orders', label: 'Order Pulse', icon: 'Pulse' },
-            { id: 'inventory', label: 'Inventory', icon: 'Stock' },
-            { id: 'customers', label: 'Intelligence', icon: 'Users' },
-            { id: 'analytics', label: 'Analytics', icon: 'Stats' },
-            { id: 'alerts', label: 'Broadcast', icon: 'Alerts' }
+            { id: 'orders', label: 'Order Pulse' },
+            { id: 'inventory', label: 'Inventory' },
+            { id: 'customers', label: 'Intelligence' },
+            { id: 'analytics', label: 'Financials' },
+            { id: 'alerts', label: 'Broadcast' }
           ].map((tab) => (
             <button 
               key={tab.id}
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              aria-controls={`${tab.id}-panel`}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`w-full text-left px-8 py-5 text-[11px] font-black uppercase tracking-widest transition-all border-l-4 flex items-center justify-between group focus:outline-none focus:ring-2 focus:ring-black/5 ${
+              className={`w-full text-left px-8 py-4 text-[11px] font-semibold uppercase tracking-widest transition-all border-l-4 flex items-center justify-between group ${
                 activeTab === tab.id 
                   ? 'bg-uber-gray border-black text-black' 
-                  : 'border-transparent text-black/50 hover:text-black hover:bg-uber-gray/50'
+                  : 'border-transparent text-black/40 hover:text-black hover:bg-uber-gray/30'
               }`}
             >
               <span>{tab.label}</span>
-              <span className={`text-[9px] opacity-0 group-hover:opacity-100 transition-opacity ${activeTab === tab.id ? 'opacity-100' : ''}`}>➔</span>
+              <span className={`text-[9px] ${activeTab === tab.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>➔</span>
             </button>
           ))}
         </nav>
 
-        <div className="p-8 border-t border-uber-gray">
-          <div className="bg-black/5 p-4 space-y-2">
-            <p className="text-[9px] font-black uppercase tracking-widest text-black/40">Secure Session</p>
-            <p className="text-[11px] font-black text-black">ADMIN_AUTH: OK</p>
-          </div>
+        <div className="p-8 border-t border-black/5">
           <button 
             onClick={() => { sessionStorage.clear(); window.location.reload(); }}
-            className="w-full mt-4 text-[10px] font-black uppercase tracking-widest text-red-600 hover:text-red-700 text-left px-0"
-            aria-label="Logout and end secure session"
+            className="w-full text-[10px] font-semibold uppercase tracking-widest text-red-600 hover:text-red-700"
           >
             Terminate Session
           </button>
@@ -149,46 +160,19 @@ export default function AdminPage() {
       </div>
 
       {/* CONTENT AREA */}
-      <div className="flex-1 h-screen overflow-y-auto no-scrollbar">
-        <Header />
-        
-        <div className="pt-24 pb-32 px-6 md:px-12 max-w-7xl mx-auto">
-          {/* KPI SECTION - Tactic 47, 49 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-            <div className="bg-white p-8 border-l-4 border-green-600 shadow-sm relative overflow-hidden group" role="region" aria-label="Revenue Statistics">
-              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform" aria-hidden="true">
-                <ShieldCheck size={100} />
-              </div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/50 mb-3">Today's Revenue</p>
-              <h2 className="text-[36px] font-black tracking-tighter leading-none">₹{stats.revenue.toLocaleString()}</h2>
-            </div>
-            
-            <div className="bg-white p-8 border-l-4 border-black shadow-sm relative overflow-hidden group" role="region" aria-label="Order Velocity">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/50 mb-3">Order Velocity</p>
-              <h2 className="text-[36px] font-black tracking-tighter leading-none">{stats.orders} <span className="text-[12px] opacity-20">LVL</span></h2>
-            </div>
-
-            <div className="bg-white p-8 border-l-4 border-red-600 shadow-sm relative overflow-hidden group" role="region" aria-label="Stock Alerts">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/50 mb-3">Stock Alerts</p>
-              <h2 className={`text-[36px] font-black tracking-tighter leading-none ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : 'text-black'}`}>
-                {products.filter(p => p.stock < 5).length}
-              </h2>
-            </div>
-
-            <div className="bg-white p-8 border-l-4 border-black/10 shadow-sm relative overflow-hidden group" role="region" aria-label="Inventory Size">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/50 mb-3">Inventory Size</p>
-              <h2 className="text-[36px] font-black tracking-tighter leading-none">{products.length} <span className="text-[12px] opacity-20">SKU</span></h2>
-            </div>
+      <div className="flex-1 h-screen overflow-y-auto bg-uber-gray/10">
+        <div className="pt-12 pb-32 px-6 md:px-16 max-w-6xl">
+          <div className="mb-12">
+            <h2 className="text-[32px] font-semibold uppercase tracking-tighter text-black mb-2">{activeTab.toUpperCase()}</h2>
+            <div className="w-12 h-1 bg-black"></div>
           </div>
 
-          {/* CONTENT PANEL */}
           <div 
             id={`${activeTab}-panel`}
-            role="tabpanel"
-            className="min-h-[400px] animate-in fade-in duration-500"
+            className="animate-in fade-in slide-in-from-bottom-4 duration-500"
           >
             {loading ? (
-              <div className="h-64 flex items-center justify-center text-caption animate-pulse">Synchronizing Data...</div>
+              <div className="h-64 flex items-center justify-center text-[12px] font-semibold uppercase tracking-widest animate-pulse">Syncing...</div>
             ) : (
               activeTab === 'orders' ? <OrderPulse /> : 
               activeTab === 'inventory' ? <InventoryManager products={products} onUpdate={fetchData} /> :
