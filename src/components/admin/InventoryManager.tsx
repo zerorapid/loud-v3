@@ -236,64 +236,74 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
       )}
 
       {/* TABLE HEADER - HIDDEN ON MOBILE */}
-      <div className="hidden lg:grid grid-cols-12 gap-4 px-6 py-4 bg-black text-white text-caption">
-        <div className="col-span-5">Product Info</div>
+      <div className="hidden lg:grid grid-cols-12 gap-4 px-8 py-4 bg-black text-white text-[10px] font-black uppercase tracking-widest">
+        <div className="col-span-5">Product Intelligence</div>
         <div className="col-span-2 text-center">Category</div>
-        <div className="col-span-2 text-center">Price (₹)</div>
-        <div className="col-span-3 text-right">Rapid Controls</div>
+        <div className="col-span-2 text-center">Unit Price</div>
+        <div className="col-span-3 text-right">Inventory Logic</div>
       </div>
 
-      {/* PRODUCT LIST */}
-      <div className="space-y-2">
-        {filteredProducts.map(p => (
-          <div key={p.id} className="bg-white border-thin p-4 lg:px-6 lg:py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center hover:border-black transition-all group">
+      {/* PRODUCT LIST - Tactic 47, 49 */}
+      <div className="bg-white shadow-sm overflow-hidden">
+        {filteredProducts.map((p, idx) => (
+          <div 
+            key={p.id} 
+            className={`px-8 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center hover:bg-uber-gray/50 transition-all group ${
+              idx !== filteredProducts.length - 1 ? 'border-b border-uber-gray' : ''
+            } ${p.stock < 5 ? 'border-l-4 border-red-600' : 'border-l-4 border-transparent'}`}
+          >
             
             {/* PRODUCT INFO */}
-            <div className="col-span-5 flex items-center gap-4">
-              <div className="w-16 h-16 bg-uber-gray flex items-center justify-center p-2 border-thin group-hover:bg-white transition-all">
+            <div className="col-span-5 flex items-center gap-6">
+              <div className="w-16 h-16 bg-white border border-uber-gray flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
                 <img src={p.image_url} className="max-w-full max-h-full object-contain mix-blend-multiply" alt=""/>
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-body-primary truncate uppercase font-black">{p.name}</h4>
-                <p className="text-body-secondary text-[11px] font-bold">{p.weight}g / ml • Cost: ₹{p.sourcing_cost || 0}</p>
-                {p.discount_price === 1 && <span className="bg-green-600 text-white text-[8px] px-1 font-black uppercase">₹1 Deal</span>}
+                <h4 className="text-[15px] font-black uppercase tracking-tight truncate">{p.name}</h4>
+                <p className="text-[10px] font-black text-black/30 uppercase tracking-widest mt-1">
+                  {p.weight}g / ml • Sourcing: ₹{p.sourcing_cost || 0}
+                </p>
+                {p.discount_price === 1 && <span className="inline-block mt-1 bg-green-600 text-white text-[8px] px-2 py-0.5 font-black uppercase tracking-widest">₹1 DEAL</span>}
               </div>
             </div>
 
             {/* CATEGORY */}
             <div className="col-span-2 text-center hidden lg:block">
-              <span className="px-3 py-1 bg-uber-gray text-[10px] font-black uppercase tracking-widest">{p.category}</span>
+              <span className="px-3 py-1 bg-uber-gray text-[10px] font-black uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">{p.category}</span>
             </div>
 
             {/* PRICE DISPLAY */}
-            <div className="col-span-2 text-center flex lg:block justify-between items-center border-t lg:border-t-0 pt-3 lg:pt-0">
+            <div className="col-span-2 text-center flex lg:block justify-between items-center">
               <span className="lg:hidden text-[10px] font-black text-black/20 uppercase">Unit Price</span>
-              <span className={`text-xl md:text-heading-3 ${p.discount_price === 1 ? 'text-green-600' : 'text-black'}`}>₹{p.discount_price}</span>
+              <div className="flex flex-col lg:items-center">
+                <span className={`text-[24px] font-black tracking-tighter ${p.discount_price === 1 ? 'text-green-600' : 'text-black'}`}>₹{p.discount_price}</span>
+                <span className="text-[9px] font-black text-black/20 line-through">MRP ₹{p.price}</span>
+              </div>
             </div>
 
             {/* ACTIONS */}
-            <div className="col-span-3 flex items-center justify-between lg:justify-end gap-3">
-              <div className="flex items-center gap-1 border-thin p-1 bg-uber-gray">
+            <div className="col-span-3 flex items-center justify-between lg:justify-end gap-6">
+              <div className="flex items-center gap-3 bg-white border border-uber-gray p-1 rounded-none">
                 <button 
                   onClick={() => updateStock(p.id, -1)}
-                  className="w-8 h-8 flex items-center justify-center hover:bg-white active-scale transition-all"
+                  className="w-10 h-10 flex items-center justify-center hover:bg-uber-gray active-scale transition-all"
                 >
-                  <Minus size={14} />
+                  <Minus size={16} />
                 </button>
-                <div className={`w-10 text-center font-black text-sm ${p.stock < 5 ? 'text-red-600' : 'text-black'}`}>
+                <div className={`w-12 text-center font-black text-[16px] ${p.stock < 5 ? 'text-red-600' : 'text-black'}`}>
                   {p.stock}
                 </div>
                 <button 
                   onClick={() => updateStock(p.id, 1)}
-                  className="w-8 h-8 flex items-center justify-center hover:bg-white active-scale transition-all"
+                  className="w-10 h-10 flex items-center justify-center hover:bg-uber-gray active-scale transition-all"
                 >
-                  <Plus size={14} />
+                  <Plus size={16} />
                 </button>
               </div>
               
               <button 
                 onClick={() => setEditingProduct(p)}
-                className="w-12 h-12 bg-black text-white flex items-center justify-center active-scale shadow-lg"
+                className="w-14 h-14 bg-black text-white flex items-center justify-center hover:bg-green-600 transition-all active-scale"
               >
                 <Edit3 size={20} />
               </button>

@@ -103,42 +103,52 @@ export default function AdminPage() {
       <Header />
       
       <div className="pt-24 pb-32 max-width">
-        {/* KPI SECTION */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
-          <div className="bg-white p-4 md:p-6 border-thin shadow-sm">
-            <p className="text-[10px] md:text-caption text-black/40 mb-1">Today's Revenue</p>
-            <h2 className="text-xl md:text-heading-2">₹{stats.revenue}</h2>
+        {/* KPI SECTION - Tactic 47, 49 */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+          <div className="bg-white p-8 border-l-4 border-green-600 shadow-sm relative overflow-hidden group">
+            <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform">
+              <ShieldCheck size={100} />
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30 mb-3">Today's Revenue</p>
+            <h2 className="text-[36px] font-black tracking-tighter leading-none">₹{stats.revenue.toLocaleString()}</h2>
           </div>
-          <div className="bg-white p-4 md:p-6 border-thin shadow-sm">
-            <p className="text-[10px] md:text-caption text-black/40 mb-1">Today's Orders</p>
-            <h2 className="text-xl md:text-heading-2">{stats.orders}</h2>
+          <div className="bg-white p-8 border-l-4 border-black shadow-sm relative overflow-hidden group">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30 mb-3">Order Velocity</p>
+            <h2 className="text-[36px] font-black tracking-tighter leading-none">{stats.orders} <span className="text-[12px] opacity-20">LVL</span></h2>
           </div>
-          <div className="bg-white p-4 md:p-6 border-thin shadow-sm">
-            <p className="text-[10px] md:text-caption text-black/40 mb-1">Low Stock</p>
-            <h2 className="text-xl md:text-heading-2 text-red-600">{products.filter(p => p.stock < 5).length}</h2>
+          <div className="bg-white p-8 border-l-4 border-red-600 shadow-sm relative overflow-hidden group">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30 mb-3">Stock Alerts</p>
+            <h2 className={`text-[36px] font-black tracking-tighter leading-none ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : 'text-black'}`}>
+              {products.filter(p => p.stock < 5).length}
+            </h2>
           </div>
-          <div className="bg-white p-4 md:p-6 border-thin shadow-sm">
-            <p className="text-[10px] md:text-caption text-black/40 mb-1">Live Products</p>
-            <h2 className="text-xl md:text-heading-2">{products.length}</h2>
+          <div className="bg-white p-8 border-l-4 border-black/10 shadow-sm relative overflow-hidden group">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30 mb-3">Inventory Size</p>
+            <h2 className="text-[36px] font-black tracking-tighter leading-none">{products.length} <span className="text-[12px] opacity-20">SKU</span></h2>
           </div>
         </div>
 
-        {/* NAVIGATION */}
-        <div className="flex bg-white border-thin p-1 mb-6 md:mb-8 overflow-x-auto no-scrollbar sticky top-16 z-20 shadow-sm">
+        {/* NAVIGATION - Tactic 49 */}
+        <div className="flex bg-white shadow-xl mb-10 overflow-x-auto no-scrollbar sticky top-16 z-20">
           {[
-            { id: 'orders', label: `Pulse (${stats.orders})` },
-            { id: 'inventory', label: `Stock (${products.length})` },
-            { id: 'customers', label: 'Users' },
-            { id: 'analytics', label: 'Stats' },
-            { id: 'alerts', label: 'Alerts' },
+            { id: 'orders', label: 'Order Pulse' },
+            { id: 'inventory', label: 'Inventory' },
+            { id: 'customers', label: 'Intelligence' },
+            { id: 'analytics', label: 'Analytics' },
+            { id: 'alerts', label: 'Broadcast' },
             { id: 'spy', label: 'Spy' }
           ].map((tab) => (
             <button 
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 min-w-[80px] md:min-w-[100px] py-3 md:py-4 text-[10px] md:text-caption transition-all ${activeTab === tab.id ? 'bg-black text-white' : 'hover:bg-uber-gray text-black/40'}`}
+              className={`flex-1 min-w-[120px] py-6 text-[11px] font-black uppercase tracking-widest transition-all relative ${
+                activeTab === tab.id ? 'text-black' : 'text-black/30 hover:text-black hover:bg-uber-gray'
+              }`}
             >
               {tab.label}
+              {activeTab === tab.id && (
+                <div className="absolute bottom-0 left-0 w-full h-1 bg-black animate-in fade-in duration-300"></div>
+              )}
             </button>
           ))}
         </div>
