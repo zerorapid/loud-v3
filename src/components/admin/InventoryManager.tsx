@@ -110,9 +110,9 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
 
       {/* ADD PRODUCT FORM */}
       {showAddForm && (
-        <form onSubmit={handleAddProduct} className="bg-white border-2 border-black p-6 space-y-6 animate-in slide-in-from-top-4 duration-300 shadow-xl">
+        <form onSubmit={handleAddProduct} className="bg-white border-2 border-black p-4 md:p-6 space-y-4 md:space-y-6 animate-in slide-in-from-top-4 duration-300 shadow-xl">
           <div className="flex justify-between items-center border-b border-uber-gray pb-4">
-            <h3 className="text-heading-3">New Product Initialization</h3>
+            <h3 className="text-xl md:text-heading-3">Initialization</h3>
             <button type="button" onClick={() => setShowAddForm(false)} className="text-black/20 hover:text-black"><X size={24} /></button>
           </div>
           
@@ -256,8 +256,9 @@ export default function InventoryManager({ products: initialProducts, onUpdate }
             </div>
 
             {/* PRICE DISPLAY */}
-            <div className="col-span-2 text-center">
-              <span className={`text-heading-3 ${p.discount_price === 1 ? 'text-green-600' : 'text-black'}`}>₹{p.discount_price}</span>
+            <div className="col-span-2 text-center flex lg:block justify-between items-center border-t lg:border-t-0 pt-3 lg:pt-0">
+              <span className="lg:hidden text-[10px] font-black text-black/20 uppercase">Unit Price</span>
+              <span className={`text-xl md:text-heading-3 ${p.discount_price === 1 ? 'text-green-600' : 'text-black'}`}>₹{p.discount_price}</span>
             </div>
 
             {/* ACTIONS */}

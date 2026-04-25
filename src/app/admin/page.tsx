@@ -104,39 +104,39 @@ export default function AdminPage() {
       
       <div className="pt-24 pb-32 max-width">
         {/* KPI SECTION */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white p-6 border-thin shadow-sm">
-            <p className="text-caption text-black/40 mb-1">Today's Revenue</p>
-            <h2 className="text-heading-2">₹{stats.revenue}</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
+          <div className="bg-white p-4 md:p-6 border-thin shadow-sm">
+            <p className="text-[10px] md:text-caption text-black/40 mb-1">Today's Revenue</p>
+            <h2 className="text-xl md:text-heading-2">₹{stats.revenue}</h2>
           </div>
-          <div className="bg-white p-6 border-thin shadow-sm">
-            <p className="text-caption text-black/40 mb-1">Today's Orders</p>
-            <h2 className="text-heading-2">{stats.orders}</h2>
+          <div className="bg-white p-4 md:p-6 border-thin shadow-sm">
+            <p className="text-[10px] md:text-caption text-black/40 mb-1">Today's Orders</p>
+            <h2 className="text-xl md:text-heading-2">{stats.orders}</h2>
           </div>
-          <div className="bg-white p-6 border-thin shadow-sm">
-            <p className="text-caption text-black/40 mb-1">Low Stock Items</p>
-            <h2 className="text-heading-2 text-red-600">{products.filter(p => p.stock < 5).length}</h2>
+          <div className="bg-white p-4 md:p-6 border-thin shadow-sm">
+            <p className="text-[10px] md:text-caption text-black/40 mb-1">Low Stock</p>
+            <h2 className="text-xl md:text-heading-2 text-red-600">{products.filter(p => p.stock < 5).length}</h2>
           </div>
-          <div className="bg-white p-6 border-thin shadow-sm">
-            <p className="text-caption text-black/40 mb-1">Live Products</p>
-            <h2 className="text-heading-2">{products.length}</h2>
+          <div className="bg-white p-4 md:p-6 border-thin shadow-sm">
+            <p className="text-[10px] md:text-caption text-black/40 mb-1">Live Products</p>
+            <h2 className="text-xl md:text-heading-2">{products.length}</h2>
           </div>
         </div>
 
         {/* NAVIGATION */}
-        <div className="flex bg-white border-thin p-1 mb-8 overflow-x-auto no-scrollbar">
+        <div className="flex bg-white border-thin p-1 mb-6 md:mb-8 overflow-x-auto no-scrollbar sticky top-16 z-20 shadow-sm">
           {[
             { id: 'orders', label: `Pulse (${stats.orders})` },
             { id: 'inventory', label: `Stock (${products.length})` },
             { id: 'customers', label: 'Users' },
-            { id: 'analytics', label: 'Financials' },
+            { id: 'analytics', label: 'Stats' },
             { id: 'alerts', label: 'Alerts' },
             { id: 'spy', label: 'Spy' }
           ].map((tab) => (
             <button 
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 min-w-[100px] py-4 text-caption transition-all ${activeTab === tab.id ? 'bg-black text-white' : 'hover:bg-uber-gray text-black/40'}`}
+              className={`flex-1 min-w-[80px] md:min-w-[100px] py-3 md:py-4 text-[10px] md:text-caption transition-all ${activeTab === tab.id ? 'bg-black text-white' : 'hover:bg-uber-gray text-black/40'}`}
             >
               {tab.label}
             </button>

@@ -62,11 +62,11 @@ export default function OrderPulse() {
             </div>
 
             {/* Body */}
-            <div className="p-6 space-y-6">
+            <div className="p-4 md:p-6 space-y-4 md:space-y-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-heading-2">₹{order.total_amount}</h3>
-                  <p className="text-body-secondary text-[11px] mt-1">{new Date(order.created_at).toLocaleTimeString()} • {order.items?.length} Items</p>
+                  <h3 className="text-2xl md:text-heading-2">₹{order.total_amount}</h3>
+                  <p className="text-body-secondary text-[10px] md:text-[11px] mt-1">{new Date(order.created_at).toLocaleTimeString()} • {order.items?.length} Items</p>
                 </div>
                 <div className="flex gap-2">
                   <a href={`tel:${order.customer_phone}`} className="w-10 h-10 border-thin flex items-center justify-center hover:bg-uber-gray active-scale">

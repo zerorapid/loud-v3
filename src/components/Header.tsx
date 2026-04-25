@@ -39,14 +39,13 @@ export default function Header({ onSearch }: HeaderProps) {
 
   if (isAdmin) {
     return (
-      <header className="fixed top-0 left-0 w-full h-16 z-50 bg-black text-white flex items-center px-6 justify-between">
-        <div className="flex items-center gap-3">
-          <ShieldCheck className="text-green-500" />
-          <h1 className="text-[18px] font-black uppercase tracking-tighter">DISCO Command Center</h1>
+      <header className="fixed top-0 left-0 w-full h-16 z-50 bg-black text-white flex items-center px-4 md:px-6 justify-between">
+        <div className="flex items-center gap-2 md:gap-3">
+          <ShieldCheck className="text-green-500 shrink-0" size={20} />
+          <h1 className="text-[14px] md:text-[18px] font-black uppercase tracking-tighter truncate">Command Center</h1>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Admin Session Active</span>
-          <a href="/" className="text-[12px] font-black uppercase border-b border-white/20 hover:border-white transition-all">Go to Store</a>
+          <a href="/" className="text-[10px] md:text-[12px] font-black uppercase border-b border-white/20 hover:border-white transition-all shrink-0">Store</a>
         </div>
       </header>
     );

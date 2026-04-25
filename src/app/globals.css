@@ -14,8 +14,13 @@
   --text-base: 0.9375rem; /* 15px */
   --text-lg:   1.0625rem; /* 17px */
   --text-xl:   1.25rem;   /* 20px */
-  --text-2xl:  1.5rem;    /* 24px */
-  --text-3xl:  2rem;      /* 32px */
+  --text-2xl:  1.25rem;    /* 20px on mobile */
+  --text-3xl:  1.5rem;      /* 24px on mobile */
+
+  @media (min-width: 768px) {
+    --text-2xl:  1.5rem;    /* 24px on desktop */
+    --text-3xl:  2rem;      /* 32px on desktop */
+  }
 
   /* SEMANTIC SPACING (Base 4) */
   --space-1: 4px;
@@ -132,6 +137,10 @@ h3, .text-heading-3 {
   margin: 0 auto; 
   padding-left: var(--space-4);
   padding-right: var(--space-4);
+  @media (max-width: 768px) {
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
+  }
 }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }

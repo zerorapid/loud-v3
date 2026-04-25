@@ -3,7 +3,7 @@ import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { AccountProvider } from "@/context/AccountContext";
 import { UIProvider } from "@/context/UIContext";
-import Footer from "@/components/Footer";
+import ConditionalFooter from "@/components/ConditionalFooter";
 import Overlays from "@/components/Overlays";
 
 export const metadata: Metadata = {
@@ -33,7 +33,7 @@ export default function RootLayout({
           <AccountProvider>
             <CartProvider>
               {children}
-              <Footer />
+              <ConditionalFooter />
               <Overlays />
             </CartProvider>
           </AccountProvider>
