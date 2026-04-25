@@ -35,6 +35,21 @@ export default function AccountOverlay() {
     }
   }, [isAccountOpen, user]);
 
+  async function fetchOrders() {
+    if (!user?.phone) return;
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('customer_phone', user.phone)
+      .order('created_at', { ascending: false });
+    
+    if (!error && data) {
+      setOrders(data);
+    }
+    setLoading(false);
+  }
+
   const BIZ_WA = "919441276604";
 
   // Deterministic PIN Generator (Highly Unique for every digit change)
@@ -172,7 +187,10 @@ export default function AccountOverlay() {
                     {menuItems.map((item) => (
                       <button 
                         key={item.id}
-                        onClick={() => setView(item.id as AccountView)}
+                        onClick={() => {
+                          setView(item.id as AccountView);
+                          if (item.id === 'orders') fetchOrders();
+                        }}
                         className="w-full p-5 flex items-center justify-between hover:bg-uber-gray transition-colors border-b border-uber-gray last:border-0"
                       >
                         <div className="flex items-center gap-4">
