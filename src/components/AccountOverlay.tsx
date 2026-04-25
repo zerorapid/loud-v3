@@ -2,7 +2,7 @@
 
 import { useAccount } from '@/context/AccountContext';
 import { useUI } from '@/context/UIContext';
-import { X, ChevronLeft, Loader2, Package, LogOut, ShoppingBag, ChevronRight, Clock, MapPin, Shield, User as UserIcon, Settings, Home, Briefcase, Building2, Save } from 'lucide-react';
+import { X, ChevronLeft, Loader2, Package, LogOut, ShoppingBag, ChevronRight, Clock, MapPin, Shield, User as UserIcon, Settings, Home, Briefcase, Building2, Save, Trash2 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
