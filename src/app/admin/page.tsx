@@ -9,7 +9,7 @@ import CustomerList from '@/components/admin/CustomerList';
 import AnalyticsView from '@/components/admin/AnalyticsView';
 import NotificationManager from '@/components/admin/NotificationManager';
 import MarketIntelligence from '@/components/admin/MarketIntelligence';
-import { Lock, ShieldCheck } from 'lucide-react';
+import { Lock, ShieldCheck, BarChart3, Package, Users, Activity, Bell, Search, Plus, ExternalLink, LogOut, Radio } from 'lucide-react';
 
 export default function AdminPage() {
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -104,48 +104,61 @@ export default function AdminPage() {
     <main className="min-h-screen bg-uber-gray/30 flex flex-col md:flex-row overflow-hidden">
       {/* VERTICAL SIDEBAR - ERP MODE */}
       <div className="w-full md:w-80 bg-white border-r border-black/10 flex flex-col sticky top-0 h-auto md:h-screen z-30 shadow-2xl">
-        <div className="p-8 border-b border-black/5">
-          <div className="w-12 h-12 bg-black text-white rounded-none flex items-center justify-center font-black text-2xl mb-4">D</div>
-          <h1 className="text-[14px] font-semibold uppercase tracking-[0.2em] leading-tight text-black/40">DISCO<br/>COMMAND</h1>
+        <div className="p-8 border-b border-black/10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-black text-white flex items-center justify-center font-black text-xl">D</div>
+            <div>
+              <h1 className="text-[14px] font-black uppercase tracking-tighter leading-tight">DISCO</h1>
+              <div className="flex items-center gap-1.5">
+                <Radio size={8} className="text-green-500 animate-pulse" fill="currentColor" />
+                <span className="text-[9px] font-bold text-black/40 uppercase tracking-widest">System Online</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-
-
-        <nav className="flex-1 overflow-y-auto py-6" role="tablist">
+        <nav className="flex-1 overflow-y-auto py-8" role="tablist">
           {[
-            { id: 'orders', label: 'Pulse', count: orders.length },
-            { id: 'inventory', label: 'Stock', count: products.length },
-            { id: 'customers', label: 'Users', count: 'LOG' },
-            { id: 'analytics', label: 'Stats', count: '₹' },
-            { id: 'alerts', label: 'Alerts', count: '!' }
+            { id: 'orders', label: 'Activity Pulse', icon: Activity, count: orders.length },
+            { id: 'inventory', label: 'Inventory Hub', icon: Package, count: products.length },
+            { id: 'customers', label: 'User dossiers', icon: Users, count: 'LOG' },
+            { id: 'analytics', label: 'Market Stats', icon: BarChart3, count: '₹' },
+            { id: 'alerts', label: 'Broadcasts', icon: Bell, count: '!' }
           ].map((tab) => (
             <button 
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`w-full text-left px-8 py-6 transition-all border-l-4 flex flex-col gap-1 group focus:outline-none ${
+              className={`w-full text-left px-8 py-5 transition-all flex items-center gap-4 group relative ${
                 activeTab === tab.id 
-                  ? 'bg-uber-gray border-black text-black' 
-                  : 'border-transparent text-black/40 hover:text-black hover:bg-uber-gray/30'
+                  ? 'bg-black text-white' 
+                  : 'text-black/60 hover:bg-black/5 hover:text-black'
               }`}
             >
-              <div className="flex items-center justify-between w-full">
-                <span className={`text-[13px] font-bold uppercase tracking-[0.2em] ${activeTab === tab.id ? 'text-black' : 'text-black/80'}`}>
-                  {tab.label}
-                </span>
-                <span className={`text-[11px] font-semibold ${activeTab === tab.id ? 'text-black/40' : 'text-black/20'}`}>
-                  ({tab.count})
-                </span>
-              </div>
-              <div className={`w-6 h-0.5 bg-black transition-all ${activeTab === tab.id ? 'opacity-100' : 'opacity-0'}`}></div>
+              <tab.icon size={20} className={activeTab === tab.id ? 'text-green-400' : 'text-black/20 group-hover:text-black'} />
+              <span className={`text-[12px] font-black uppercase tracking-widest flex-1`}>
+                {tab.label}
+              </span>
+              {activeTab === tab.id && (
+                <div className="absolute right-0 top-0 w-1 h-full bg-green-400"></div>
+              )}
             </button>
           ))}
         </nav>
 
-        <div className="p-8 border-t border-black/5">
+        <div className="p-6 border-t border-black/10 space-y-4">
+          <a 
+            href="/" 
+            target="_blank"
+            className="flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-black/60 hover:text-black hover:bg-black/5 transition-all"
+          >
+            <ExternalLink size={14} />
+            View Storefront
+          </a>
           <button 
             onClick={() => { sessionStorage.clear(); window.location.reload(); }}
-            className="w-full text-[10px] font-semibold uppercase tracking-widest text-red-600 hover:text-red-700"
+            className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-600 hover:bg-red-50 transition-all"
           >
+            <LogOut size={14} />
             Terminate Session
           </button>
         </div>
@@ -154,37 +167,56 @@ export default function AdminPage() {
       {/* CONTENT AREA */}
       <div className="flex-1 h-screen overflow-y-auto bg-uber-gray/10 scroll-smooth">
         {/* STICKY KPI DASHBOARD */}
-        <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-black/10 px-6 md:px-16 py-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl">
-            <div className="flex flex-col">
-              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-black/40 mb-1">Today's Revenue</span>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black tracking-tighter">₹{stats.revenue.toLocaleString()}</span>
-                <span className="text-[10px] font-bold text-green-600 uppercase tracking-widest">+12.5%</span>
+        <div className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-black/10 px-6 md:px-16 py-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 max-w-6xl">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-16 flex-1">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 mb-1">Today's Revenue</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black tracking-tighter">₹{stats.revenue.toLocaleString()}</span>
+                  <span className="text-[10px] font-black text-green-600 uppercase tracking-widest bg-green-50 px-1">+12%</span>
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 mb-1">Total Orders</span>
+                <span className="text-3xl font-black tracking-tighter">{stats.orders}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 mb-1">Critical Alerts</span>
+                <div className="flex items-center gap-3">
+                  <span className={`text-3xl font-black tracking-tighter ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : ''}`}>
+                    {products.filter(p => p.stock < 5).length}
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="flex flex-col border-l border-black/5 md:pl-8">
-              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-black/40 mb-1">Total Orders</span>
-              <span className="text-3xl font-black tracking-tighter">{stats.orders}</span>
-            </div>
-            <div className="flex flex-col border-l border-black/5 md:pl-8">
-              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-black/40 mb-1">Stock Alerts</span>
-              <div className="flex items-center gap-3">
-                <span className={`text-3xl font-black tracking-tighter ${products.filter(p => p.stock < 5).length > 0 ? 'text-red-600' : ''}`}>
-                  {products.filter(p => p.stock < 5).length}
-                </span>
-                {products.filter(p => p.stock < 5).length > 0 && (
-                  <span className="bg-red-600 text-white text-[9px] font-black px-2 py-0.5 animate-pulse">CRITICAL</span>
-                )}
+
+            <div className="flex items-center gap-3">
+              <div className="relative group md:w-64">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-black/20 group-hover:text-black transition-colors" size={16} />
+                <input 
+                  type="text"
+                  placeholder="Global ERP Search..."
+                  className="w-full h-12 bg-uber-gray border border-transparent px-12 text-xs font-bold uppercase tracking-widest placeholder:text-black/20 focus:bg-white focus:border-black transition-all outline-none"
+                />
               </div>
+              <button className="h-12 w-12 bg-black text-white flex items-center justify-center hover:bg-green-600 transition-all active-scale">
+                <Plus size={20} />
+              </button>
             </div>
           </div>
         </div>
 
         <div className="pt-12 pb-32 px-6 md:px-16 max-w-6xl">
-          <div className="mb-12">
-            <h2 className="text-[32px] font-black uppercase tracking-tighter text-black mb-2">{activeTab.toUpperCase()}</h2>
-            <div className="w-12 h-1 bg-black"></div>
+          <div className="mb-12 flex items-end justify-between">
+            <div>
+              <h2 className="text-[40px] font-black uppercase tracking-tighter text-black leading-none">{activeTab}</h2>
+              <p className="text-[11px] font-bold text-black/40 uppercase tracking-[0.3em] mt-3">Sector: Intelligence-Grid-{activeTab.substring(0,3).toUpperCase()}</p>
+            </div>
+            <div className="hidden md:flex gap-2">
+              <div className="h-10 w-24 border border-black/10 bg-white flex items-center justify-center text-[9px] font-black uppercase tracking-widest text-black/40">Filtered</div>
+              <div className="h-10 w-24 border border-black/10 bg-white flex items-center justify-center text-[9px] font-black uppercase tracking-widest text-black/40">Realtime</div>
+            </div>
           </div>
 
           <div 
