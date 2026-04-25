@@ -59,7 +59,7 @@ export default function Home() {
                 <span className="text-[10px] font-black tracking-normal">Cart</span>
               </div>
               <h2 className="text-[48px] lg:text-[72px] font-black leading-[0.9] tracking-tighter uppercase mb-8">
-                Rapid<br/>Cart<br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/20">System</span>
+                DISCO<br/>Cart<br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/20">System</span>
               </h2>
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2 bg-white/10 px-4 py-2 border border-white/5">
