@@ -8,7 +8,7 @@ const CartOverlay = dynamic(() => import("./CartOverlay"), { ssr: false });
 const AccountOverlay = dynamic(() => import("./AccountOverlay"), { ssr: false });
 const LocationOverlay = dynamic(() => import("./LocationOverlay"), { ssr: false });
 const NotificationOverlay = dynamic(() => import("./NotificationOverlay"), { ssr: false });
-const SupportChat = dynamic(() => import("./SupportChat"), { ssr: false });
+
 
 export default function Overlays() {
   const [mounted, setMounted] = useState(false);
@@ -25,7 +25,7 @@ export default function Overlays() {
       <AccountOverlay />
       <LocationOverlay />
       <NotificationOverlay />
-      <SupportChat />
+
     </>
   );
 }

@@ -360,11 +360,57 @@ export default function AccountOverlay() {
                 </div>
               )}
 
-              {/* SECURITY PLACEHOLDER */}
+              {/* SECURITY & PRIVACY SECTION */}
               {view === 'security' && (
-                <div className="bg-white rounded-3xl p-12 text-center space-y-4">
-                  <Shield size={32} className="mx-auto text-black/10" />
-                  <p className="text-[14px] font-bold text-black/30">Your data is secured with AES-256 encryption.</p>
+                <div className="space-y-6">
+                  {/* PIN RECOVERY */}
+                  <div className="bg-white rounded-3xl p-6 border border-black/5 shadow-sm">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Shield className="text-purple-600" size={20} />
+                      <h4 className="text-[14px] font-black uppercase tracking-tight">Access Control</h4>
+                    </div>
+                    <div className="bg-uber-gray p-4 rounded-2xl">
+                      <p className="text-[10px] font-black text-black/30 uppercase tracking-widest mb-1">Your Permanent PIN</p>
+                      <h3 className="text-3xl font-black tracking-[0.2em]">{generatePermanentPin(user.phone)}</h3>
+                      <p className="text-[11px] font-bold text-black/40 mt-2 leading-tight">This PIN is unique to your phone number and is used for instant access across all DISCO nodes.</p>
+                    </div>
+                  </div>
+
+                  {/* DATA PROTECTION */}
+                  <div className="bg-white rounded-3xl p-6 border border-black/5 shadow-sm space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-green-50 text-green-600 rounded-lg flex items-center justify-center font-black text-[10px]">E2E</div>
+                      <div>
+                        <h5 className="text-[13px] font-black uppercase">Industrial Encryption</h5>
+                        <p className="text-[11px] font-bold text-black/40">AES-256 Military Grade Security</p>
+                      </div>
+                    </div>
+                    <p className="text-[12px] font-medium text-black/60 leading-relaxed">
+                      Your transaction data and location history are encrypted at the hardware level. No third-party access is permitted under our Logistics Protocol.
+                    </p>
+                  </div>
+
+                  {/* PRIVACY ACTIONS */}
+                  <div className="bg-white rounded-3xl overflow-hidden border border-black/5">
+                    <a 
+                      href={`https://wa.me/${BIZ_WA}?text=I%20want%20to%20request%20data%20deletion%20for%20account%20${user.phone}`}
+                      target="_blank"
+                      className="w-full p-5 flex items-center justify-between hover:bg-red-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-red-100 text-red-600 rounded-xl flex items-center justify-center">
+                          <Trash2 size={20} />
+                        </div>
+                        <div>
+                          <span className="text-[14px] font-black text-red-600 uppercase">Request Data Deletion</span>
+                          <p className="text-[11px] font-bold text-red-400">Right to be forgotten</p>
+                        </div>
+                      </div>
+                      <ChevronRight size={18} className="text-red-200" />
+                    </a>
+                  </div>
+
+                  <p className="text-center text-[10px] font-black text-black/20 uppercase tracking-[0.3em] pt-4">DISCO V1.0 SECURED</p>
                 </div>
               )}
             </div>

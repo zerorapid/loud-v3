@@ -24,7 +24,7 @@ export default function BottomNav() {
   const navItemClass = "flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all active-scale";
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full h-[84px] bg-white border-t border-border z-50 md:hidden flex items-center justify-between px-2 pb-safe shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
+    <nav className="fixed bottom-0 left-0 w-full h-[84px] bg-white border-t border-border z-50 md:hidden flex items-center justify-between px-6 pb-safe shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
       
       {/* 1. MARKET */}
       <button 
@@ -47,20 +47,7 @@ export default function BottomNav() {
         <span className="text-[10px] font-black uppercase tracking-widest">Deals</span>
       </button>
 
-      {/* 3. SUPPORT */}
-      <button 
-        onClick={() => {
-          // Trigger the floating support chat bubble
-          const supportBtn = document.getElementById('support-trigger');
-          if (supportBtn) supportBtn.click();
-        }}
-        className={`${navItemClass} text-black/30 hover:text-black`}
-      >
-        <MessageCircleQuestion size={22} strokeWidth={2.5} />
-        <span className="text-[10px] font-black uppercase tracking-widest">Support</span>
-      </button>
-
-      {/* 4. DISCOVER */}
+      {/* 3. DISCOVER */}
       <button 
         onClick={() => setIsSearchOpen(true)}
         className={`${navItemClass} text-black/30`}
